@@ -2,10 +2,8 @@ package com.happydroid.happytodo.view
 
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.happydroid.happytodo.R
 import com.happydroid.happytodo.viewModel.MainViewModel
@@ -28,10 +26,36 @@ class MainFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setHasOptionsMenu(true)
         val rootView = inflater.inflate(R.layout.fragment_main, container, false)
         val todolistRecyclerView: RecyclerView = rootView.findViewById(R.id.todolist)
         viewModel.setRecyclerView(todolistRecyclerView) // Передаем RecyclerView в нашу ViewModel
         return rootView
     }
 
+    // Иконка для настроек
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_main, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                // Создаем экземпляр SettingsFragment
+                val settingsFragment = SettingsFragment()
+
+                // Получаем FragmentManager
+                val fragmentManager = requireActivity().supportFragmentManager
+
+                // Заменяем текущий фрагмент на SettingsFragment
+                fragmentManager.beginTransaction()
+                    .replace(R.id.container, settingsFragment)
+                    .addToBackStack(null)
+                    .commit()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 }

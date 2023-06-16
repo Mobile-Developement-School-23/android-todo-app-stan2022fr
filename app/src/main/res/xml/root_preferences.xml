@@ -1,0 +1,24 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:title="@string/messages_choose_theme">
+        <SwitchPreferenceCompat
+            app:key="dark_theme"
+            app:title="@string/dark_theme_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:title="@string/messages_notification">
+        <ListPreference
+            app:key="notification"
+            app:title="@string/notification_title"
+            app:entries="@array/notification_entries"
+            app:entryValues="@array/notification_values"
+            app:defaultValue="notify_1day"
+            app:useSimpleSummaryProvider="true"/>
+
+    </PreferenceCategory>
+
+
+</PreferenceScreen>

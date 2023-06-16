@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Happy Todo</string>
+    <!-- Preference Titles -->
+    <string name="messages_notification">Уведомления</string>
+    <string name="messages_choose_theme">Выбор темы</string>
+
+    <!-- Messages Preferences -->
+    <string name="notification_title">Присылать уведомления за…</string>
+    <string name="dark_theme_title">Тёмная тема</string>
+
+    <string name="notification_1day">1 день</string>
+    <string name="notification_3day">3 дня</string>
+
 </resources>

@@ -1,0 +1,12 @@
+<resources>
+    <!-- Notification Preference -->
+    <string-array name="notification_entries">
+        <item>@string/notification_1day</item>
+        <item>@string/notification_3day</item>
+    </string-array>
+
+    <string-array name="notification_values">
+        <item>notify_1day</item>
+        <item>notify_3day</item>
+    </string-array>
+</resources>
