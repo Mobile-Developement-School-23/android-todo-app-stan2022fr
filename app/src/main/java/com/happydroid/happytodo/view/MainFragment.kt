@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.happydroid.happytodo.R
 import com.happydroid.happytodo.viewModel.MainViewModel
 
@@ -31,6 +32,15 @@ class MainFragment : Fragment() {
         val todolistRecyclerView: RecyclerView = rootView.findViewById(R.id.todolist)
         viewModel.setRecyclerView(todolistRecyclerView) // Передаем RecyclerView в нашу ViewModel
         return rootView
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val fabAddTask = view.findViewById<FloatingActionButton>(R.id.fabAddTask)
+        fabAddTask.setOnClickListener {
+            // запускаем новый fragment
+        }
     }
 
     // Иконка для настроек
