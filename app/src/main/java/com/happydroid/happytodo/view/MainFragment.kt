@@ -39,7 +39,13 @@ class MainFragment : Fragment() {
 
         val fabAddTask = view.findViewById<FloatingActionButton>(R.id.fabAddTask)
         fabAddTask.setOnClickListener {
-            // запускаем новый fragment
+            // запускаем fragment для добавления задачи
+            val addTodoFragment = AddTodoFragment()
+            val fragmentManager = requireActivity().supportFragmentManager
+            val fragmentTransaction = fragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.container, addTodoFragment)
+            fragmentTransaction.addToBackStack(null)
+            fragmentTransaction.commit()
         }
     }
 
