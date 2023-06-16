@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.happydroid.happytodo.R
 import com.happydroid.happytodo.data.TodoItem
 
@@ -36,7 +35,7 @@ class TodolistAdapter : RecyclerView.Adapter<TodolistViewHolder>() {
     override fun getItemCount() = todoItems.size
 
     override fun onBindViewHolder(holder: TodolistViewHolder, position: Int) {
-        holder.onBind(todoItems[position] as TodoItem)
+        holder.onBind(todoItems[position])
 
     }
 

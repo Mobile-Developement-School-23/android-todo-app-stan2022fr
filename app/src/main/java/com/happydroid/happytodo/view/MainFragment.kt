@@ -8,13 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.happydroid.happytodo.R
-import com.happydroid.happytodo.data.TodoItemsRepository
 import com.happydroid.happytodo.viewModel.MainViewModel
 
 class MainFragment : Fragment() {
-
-    private lateinit var todolistRecyclerView: RecyclerView
-
 
     companion object {
         fun newInstance() = MainFragment()
