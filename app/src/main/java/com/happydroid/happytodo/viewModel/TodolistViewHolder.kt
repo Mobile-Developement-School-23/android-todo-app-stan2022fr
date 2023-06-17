@@ -12,12 +12,15 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.happydroid.happytodo.R
 import com.happydroid.happytodo.data.TodoItem
+import com.happydroid.happytodo.data.TodoItem.Priority.*
+import java.util.*
 
 class TodolistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-    private val text_todo: TextView = itemView.findViewById(R.id.text_todo)
+    private val todoTextView: TextView = itemView.findViewById(R.id.text_todo)
     private val isDone: CheckBox = itemView.findViewById(R.id.checkbox_done)
     private val priority: ImageView = itemView.findViewById(R.id.priority)
+    private val dateTextView: TextView = itemView.findViewById(R.id.dateTextView)
 
     fun onBind(todoItem: TodoItem) {
 
@@ -25,18 +28,26 @@ class TodolistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         isDone.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
                 isDone.buttonTintList = ColorStateList.valueOf(ContextCompat.getColor(itemView.context, R.color.color_green))
-                text_todo.setTextColor(ContextCompat.getColor(itemView.context, R.color.label_tertiary))
-                text_todo.paintFlags = text_todo.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                todoTextView.setTextColor(ContextCompat.getColor(itemView.context, R.color.label_tertiary))
+                todoTextView.paintFlags = todoTextView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+                dateTextView.visibility = View.GONE
+                priority.visibility = View.GONE
             } else {
                 isDone.buttonTintList = ColorStateList.valueOf(ContextCompat.getColor(itemView.context, R.color.label_tertiary))
-                text_todo.setTextColor(ContextCompat.getColor(itemView.context, R.color.label_primary))
-                text_todo.paintFlags = text_todo.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                todoTextView.setTextColor(ContextCompat.getColor(itemView.context, R.color.label_primary))
+                todoTextView.paintFlags = todoTextView.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                if (todoItem.deadline != null){
+                    dateTextView.visibility = View.VISIBLE
+                }
+                if (todoItem.priority != NORMAL  ){
+                    priority.visibility = View.VISIBLE
+                }
             }
         }
 
         // Иконка для приоритета задачи
         when (todoItem.priority) {
-            TodoItem.Priority.LOW -> {
+            LOW -> {
                 // Получение цвета из аттрибутов
                 val typedValue = TypedValue()
                 itemView.context.theme.resolveAttribute(R.attr.label_tertiary, typedValue, true)
@@ -46,10 +57,10 @@ class TodolistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
                 priority.visibility = View.VISIBLE
                 priority.setImageResource(R.drawable.low_priority)
             }
-            TodoItem.Priority.NORMAL -> {
+            NORMAL -> {
                 priority.visibility = View.GONE
             }
-            TodoItem.Priority.HIGH -> {
+            HIGH -> {
                 // Получение цвета из аттрибутов
                 val typedValue = TypedValue()
                 itemView.context.theme.resolveAttribute(R.attr.color_red, typedValue, true)
@@ -60,8 +71,19 @@ class TodolistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
                 priority.setImageResource(R.drawable.high_priority)
             }
         }
+        if (todoItem.deadline != null){
+            val monthNames = arrayOf(
+                "января", "февраля", "марта", "апреля", "мая", "июня",
+                "июля", "августа", "сентября", "октября", "ноября", "декабря"
+            )
+            val calendar = Calendar.getInstance()
+            calendar.time = todoItem.deadline
+            val formattedDate = "${calendar.get(Calendar.DAY_OF_MONTH)} ${monthNames[calendar.get(Calendar.MONTH)]} ${calendar.get(Calendar.YEAR)}"
 
-        text_todo.text = todoItem.text
+            dateTextView.text = formattedDate
+            dateTextView.visibility = View.VISIBLE
+        }
+        todoTextView.text = todoItem.text
         isDone.isChecked = todoItem.isDone
     }
 }
