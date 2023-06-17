@@ -17,7 +17,14 @@ class TodoItemsRepository private constructor(){
     }
 
     fun addTodoItem(todoItem: TodoItem) {
-        todoItems.add(todoItem)
+        val index = todoItems.indexOfFirst { it.id == todoItem.id }
+        if (index != -1) {
+            // Элемент найден, перезаписываем его
+            todoItems[index] = todoItem
+        } else {
+            // Элемент не найден, добавляем новый элемент
+            todoItems.add(todoItem)
+        }
     }
 
     private fun getValuesItems(): List<TodoItem> {

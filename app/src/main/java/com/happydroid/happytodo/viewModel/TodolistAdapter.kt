@@ -1,5 +1,6 @@
 package com.happydroid.happytodo.viewModel
 
+import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -46,6 +47,12 @@ class TodolistAdapter(private val application: ToDoApplication) : RecyclerView.A
 
             // запускаем fragment для изменения задачи (пока просто заглушка)
             val addTodoFragment = AddTodoFragment()
+
+            // Создаем Bundle и добавляем данные
+            val bundle  = Bundle()
+            bundle.putParcelable("todoItem", todoItems[position])
+            addTodoFragment.arguments = bundle
+
             val fragmentManager = application.getFragmentManager()
             if (fragmentManager != null){
                 val fragmentTransaction = fragmentManager.beginTransaction()
