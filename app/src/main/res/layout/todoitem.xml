@@ -42,14 +42,14 @@
         app:layout_constraintStart_toEndOf="@+id/priority"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
+    <ImageView
         android:id="@+id/button_info"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
-        android:background="@drawable/info_outline"
-        android:tint="?attr/label_tertiary"
+        android:src="@drawable/info_outline"
+        app:tint="?attr/label_tertiary"
         app:layout_constraintBottom_toBottomOf="@+id/checkbox_done"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/text_todo"

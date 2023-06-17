@@ -1,5 +1,6 @@
 package com.happydroid.happytodo.viewModel
 
+import android.app.Application
 import android.content.res.ColorStateList
 import android.graphics.Paint
 import android.graphics.PorterDuff
@@ -13,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.happydroid.happytodo.R
 import com.happydroid.happytodo.data.TodoItem
 
-class TodolistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+class TodolistViewHolder(itemView: View, val application: Application) : RecyclerView.ViewHolder(itemView) {
 
     private val text_todo: TextView = itemView.findViewById(R.id.text_todo)
     private val isDone: CheckBox = itemView.findViewById(R.id.checkbox_done)
