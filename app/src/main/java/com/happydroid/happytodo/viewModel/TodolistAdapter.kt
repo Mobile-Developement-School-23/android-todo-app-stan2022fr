@@ -1,7 +1,5 @@
 package com.happydroid.happytodo.viewModel
 
-import android.app.Application
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -13,7 +11,7 @@ import com.happydroid.happytodo.data.TodoItem
 import com.happydroid.happytodo.view.AddTodoFragment
 
 
-class TodolistAdapter(val application: ToDoApplication) : RecyclerView.Adapter<TodolistViewHolder>() {
+class TodolistAdapter(private val application: ToDoApplication) : RecyclerView.Adapter<TodolistViewHolder>() {
 
     var todoItems = listOf<TodoItem>()
         set(value) {
@@ -33,7 +31,7 @@ class TodolistAdapter(val application: ToDoApplication) : RecyclerView.Adapter<T
                     R.layout.todoitem,
                     parent,
                     false
-                ), application
+                )
             )
     }
 
@@ -42,11 +40,10 @@ class TodolistAdapter(val application: ToDoApplication) : RecyclerView.Adapter<T
 
     override fun onBindViewHolder(holder: TodolistViewHolder, position: Int) {
 
-   val button_info: ImageView = holder.itemView.findViewById(R.id.button_info)
-        button_info.setOnClickListener {
-//            Log.i("happyyy", position.toString())
+        val buttonInfo: ImageView = holder.itemView.findViewById(R.id.button_info)
+        buttonInfo.setOnClickListener {
 
-            // запускаем fragment для добавления задачи
+            // запускаем fragment для изменения задачи (пока просто заглушка)
             val addTodoFragment = AddTodoFragment()
             val fragmentManager = application.getFragmentManager()
             if (fragmentManager != null){
