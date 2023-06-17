@@ -13,10 +13,11 @@ data class TodoItem(
     val modifiedDate: Date?
 ) {
     enum class Priority {
-        LOW, NORMAL, HIGH;
+        NORMAL, LOW,  HIGH;
 
         companion object {
             fun fromString(value: String): Priority {
+                Log.i("happyy", value)
                 return when (value) {
 
                     "@string/priority_none" -> NORMAL

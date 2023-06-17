@@ -17,6 +17,7 @@ import com.happydroid.happytodo.viewModel.AddTodoViewModel
 import com.happydroid.happytodo.R
 import com.happydroid.happytodo.data.TodoItem
 import java.util.*
+import java.text.SimpleDateFormat
 
 class AddTodoFragment : Fragment() {
 
@@ -25,6 +26,8 @@ class AddTodoFragment : Fragment() {
     }
 
     private lateinit var viewModel: AddTodoViewModel
+    private var selectedDate: Date? = null
+    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -100,9 +103,10 @@ class AddTodoFragment : Fragment() {
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
         val datePickerDialog = DatePickerDialog(requireContext(), { view, selectedYear, selectedMonth, selectedDay ->
-            val selectedDate = Calendar.getInstance()
+            val selectedDateCalendar = Calendar.getInstance()
 
-            selectedDate.set(selectedYear, selectedMonth, selectedDay)
+            selectedDateCalendar.set(selectedYear, selectedMonth, selectedDay)
+            selectedDate = dateFormat.parse("$selectedDay/$selectedMonth/$selectedYear")
 
             val monthNames = arrayOf(
                 "января", "февраля", "марта", "апреля", "мая", "июня",
@@ -133,19 +137,19 @@ class AddTodoFragment : Fragment() {
         val spinnerPriority = requireView().findViewById<Spinner>(R.id.prioritySpinner)
         // Извлекаем значения
         val todoText = editTextTodoText.text.toString()
-        val priority = spinnerPriority.selectedItem.toString()
+        val priorityId = spinnerPriority.selectedItemId
 
         // Создаем объект с полученными данными
         val todoItem = TodoItem(
             id = UUID.randomUUID().toString(),
             text = todoText,
-            priority = TodoItem.Priority.fromString(priority),
-            deadline = null,
+            priority = TodoItem.Priority.values()[priorityId.toInt()],
+            deadline = selectedDate,
             isDone = false,
             createdDate = Date(),
             modifiedDate = null
         )
-
+        Log.i("happyy", todoItem.priority.toString())
 
         addTodoViewModel.addTodoItem(todoItem)
     }
