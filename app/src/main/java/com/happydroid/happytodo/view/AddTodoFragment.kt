@@ -3,15 +3,19 @@ package com.happydroid.happytodo.view
 import android.app.DatePickerDialog
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageView
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.widget.SwitchCompat
 import com.happydroid.happytodo.viewModel.AddTodoViewModel
 import com.happydroid.happytodo.R
+import com.happydroid.happytodo.data.TodoItem
 import java.util.*
 
 class AddTodoFragment : Fragment() {
@@ -45,6 +49,7 @@ class AddTodoFragment : Fragment() {
         // Установка обработчика клика на кнопку "Сохранить"
         val saveButton: TextView = view.findViewById(R.id.saveButton)
         saveButton.setOnClickListener {
+            saveTodo()
             // Выполнение действия навигации назад
            requireActivity().supportFragmentManager.popBackStack()
         }
@@ -117,6 +122,32 @@ class AddTodoFragment : Fragment() {
 
     private fun hideDateText(dateText: TextView) {
         dateText.visibility = View.GONE
+    }
+
+    // Добавляем TodoItem в AddTodoViewModel
+    fun saveTodo() {
+        val addTodoViewModel = ViewModelProvider(this).get(AddTodoViewModel::class.java)
+
+        // ссылки на элементы пользовательского интерфейса
+        val editTextTodoText = requireView().findViewById<EditText>(R.id.editText)
+        val spinnerPriority = requireView().findViewById<Spinner>(R.id.prioritySpinner)
+        // Извлекаем значения
+        val todoText = editTextTodoText.text.toString()
+        val priority = spinnerPriority.selectedItem.toString()
+
+        // Создаем объект с полученными данными
+        val todoItem = TodoItem(
+            id = UUID.randomUUID().toString(),
+            text = todoText,
+            priority = TodoItem.Priority.fromString(priority),
+            deadline = null,
+            isDone = false,
+            createdDate = Date(),
+            modifiedDate = null
+        )
+
+
+        addTodoViewModel.addTodoItem(todoItem)
     }
 
 }

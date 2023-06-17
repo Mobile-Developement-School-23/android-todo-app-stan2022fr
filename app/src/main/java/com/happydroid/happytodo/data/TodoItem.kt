@@ -1,5 +1,6 @@
 package com.happydroid.happytodo.data
 
+import android.util.Log
 import java.util.Date
 
 data class TodoItem(
@@ -12,6 +13,18 @@ data class TodoItem(
     val modifiedDate: Date?
 ) {
     enum class Priority {
-        LOW, NORMAL, HIGH
+        LOW, NORMAL, HIGH;
+
+        companion object {
+            fun fromString(value: String): Priority {
+                return when (value) {
+
+                    "@string/priority_none" -> NORMAL
+                    "@string/priority_low" -> LOW
+                    "@string/priority_high" -> HIGH
+                    else -> NORMAL
+                }
+            }
+        }
     }
 }

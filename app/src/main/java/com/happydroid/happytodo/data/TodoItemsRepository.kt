@@ -1,8 +1,9 @@
 package com.happydroid.happytodo.data
+import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class TodoItemsRepository {
+class TodoItemsRepository private constructor(){
     private val todoItems: MutableList<TodoItem> = mutableListOf()
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
@@ -22,7 +23,6 @@ class TodoItemsRepository {
     private fun getValuesItems(): List<TodoItem> {
         val items = mutableListOf<TodoItem>()
 
-
         items.add(TodoItem("1", "Купить продукты", TodoItem.Priority.NORMAL, null, false, dateFormat.parse("10/06/2023")!!, null))
         items.add(TodoItem("2", "Записаться на занятия йогой в спортзале", TodoItem.Priority.LOW, null, true, dateFormat.parse("10/06/2023")!!, null))
         items.add(TodoItem("3", "Составить план действий на ближайшую неделю", TodoItem.Priority.HIGH, null, false, dateFormat.parse("11/06/2023")!!, null))
@@ -40,5 +40,16 @@ class TodoItemsRepository {
         items.add(TodoItem("15", "Закончить чтение новой книги", TodoItem.Priority.LOW, null, false, dateFormat.parse("13/06/2023")!!, null))
 
         return items
+    }
+
+    companion object {
+        @Volatile
+        private var instance: TodoItemsRepository? = null
+
+        fun getInstance(): TodoItemsRepository {
+            return instance ?: synchronized(this) {
+                instance ?: TodoItemsRepository().also { instance = it }
+            }
+        }
     }
 }

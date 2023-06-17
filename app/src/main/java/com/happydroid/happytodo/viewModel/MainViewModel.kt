@@ -12,21 +12,18 @@ import com.happydroid.happytodo.data.TodoItemsRepository
 
 
 class MainViewModel(application: Application) : AndroidViewModel(application)  {
-    private val todolistPreviewRepository = TodoItemsRepository()
+    private val todolistPreviewRepository = TodoItemsRepository.getInstance()
     private val todolistAdapter: TodolistAdapter
 
     init {
         todolistAdapter = TodolistAdapter(application as ToDoApplication)
     }
     fun setRecyclerView(todolistRecyclerView: RecyclerView) {
-
         val layoutManager = LinearLayoutManager(getApplication<Application>().applicationContext, LinearLayoutManager.VERTICAL, false)
         todolistRecyclerView.adapter = todolistAdapter
         todolistRecyclerView.layoutManager = layoutManager
         todolistRecyclerView.addItemDecoration(TodoItemOffsetItemDecoration(bottomOffset = 16f.toPx.toInt()))
         todolistAdapter.todoItems = todolistPreviewRepository.getTodoItems()
-        Log.i("setRecyclerView", todolistAdapter.todoItems[0].text)
-
     }
 }
 
