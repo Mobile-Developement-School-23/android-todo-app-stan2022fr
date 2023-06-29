@@ -10,4 +10,12 @@ class AddTodoViewModel : ViewModel() {
     fun addTodoItem(todoItem: TodoItem) {
         todoItemsRepository.addTodoItem(todoItem)
     }
+
+    fun deleteTodoItem(idTodoItem: String) {
+        todoItemsRepository.deleteTodoItem(idTodoItem)
+    }
+
+    fun getTodoItem(idTodoItem: String) : TodoItem?{
+        return todoItemsRepository.getTodoItem(idTodoItem)
+    }
 }

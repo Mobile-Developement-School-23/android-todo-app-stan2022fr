@@ -1,7 +1,6 @@
 package com.happydroid.happytodo.viewModel
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -45,12 +44,11 @@ class TodolistAdapter(private val application: ToDoApplication) : RecyclerView.A
         val buttonInfo: ImageView = holder.itemView.findViewById(R.id.button_info)
         buttonInfo.setOnClickListener {
 
-            // запускаем fragment для изменения задачи (пока просто заглушка)
             val addTodoFragment = AddTodoFragment()
 
             // Создаем Bundle и добавляем данные
             val bundle  = Bundle()
-            bundle.putParcelable("todoItem", todoItems[position])
+            bundle.putString("idTodoItem", todoItems[position].id)
             addTodoFragment.arguments = bundle
 
             val fragmentManager = application.getFragmentManager()

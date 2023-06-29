@@ -27,6 +27,14 @@ class TodoItemsRepository private constructor(){
         }
     }
 
+    fun deleteTodoItem(idTodoItem: String) {
+        val index = todoItems.indexOfFirst { it.id == idTodoItem }
+        if (index != -1) {
+            todoItems.removeAt(index)
+            Log.i("hhh", "item deleted $idTodoItem")
+        }
+    }
+
     private fun getValuesItems(): List<TodoItem> {
         val items = mutableListOf<TodoItem>()
 
@@ -47,6 +55,10 @@ class TodoItemsRepository private constructor(){
         items.add(TodoItem("15", "Закончить чтение новой книги", TodoItem.Priority.LOW, null, false, dateFormat.parse("13/06/2023")!!, null))
 
         return items
+    }
+
+    fun getTodoItem(idTodoItem: String): TodoItem? {
+        return todoItems.find { it.id == idTodoItem }
     }
 
     companion object {
