@@ -1,6 +1,5 @@
 package com.happydroid.happytodo.viewModel
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.CheckBox
@@ -11,7 +10,7 @@ import com.happydroid.happytodo.R
 import com.happydroid.happytodo.data.TodoItem
 
 
-class TodolistAdapter() : RecyclerView.Adapter<TodolistViewHolder>() {
+class TodolistAdapter : RecyclerView.Adapter<TodolistViewHolder>() {
 
     var checkboxClickListener: ((todoId: String, isChecked : Boolean) -> Unit)? = null
     var infoClickListener: ((todoId: String) -> Unit)? = null
@@ -43,16 +42,13 @@ class TodolistAdapter() : RecyclerView.Adapter<TodolistViewHolder>() {
 
     override fun onBindViewHolder(holder: TodolistViewHolder, position: Int) {
         val todoItem = todoItems[position]
-        Log.i("hhh", todoItem.id + " " + todoItem.text)
 
         val checkboxDone: CheckBox = holder.itemView.findViewById(R.id.checkbox_done)
         checkboxDone.setOnClickListener {
-            Log.i("hhh", " Adapter isDone.setOnClickListener ${todoItem.id}")
             checkboxClickListener?.invoke(todoItem.id, (it as CheckBox).isChecked)
         }
         val buttonInfo: ImageView = holder.itemView.findViewById(R.id.button_info)
         buttonInfo.setOnClickListener {
-            Log.i("hhh", " Adapter buttonInfo.setOnClickListener")
             infoClickListener?.invoke(todoItem.id)
         }
 

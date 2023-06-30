@@ -1,6 +1,5 @@
 package com.happydroid.happytodo.data
 
-import android.util.Log
 import java.util.Date
 
 data class TodoItem(
@@ -18,7 +17,6 @@ data class TodoItem(
 
         companion object {
             fun fromString(value: String): Priority {
-                Log.i("happyy", value)
                 return when (value) {
 
                     "@string/priority_none" -> NORMAL

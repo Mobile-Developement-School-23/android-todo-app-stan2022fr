@@ -3,7 +3,6 @@ package com.happydroid.happytodo.viewModel
 import android.content.res.ColorStateList
 import android.graphics.Paint
 import android.graphics.PorterDuff
-import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.widget.CheckBox
@@ -32,7 +31,6 @@ class TodolistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         // Обработака цвета и формата текста в зависимости от приоритета и статуса задачи
         isDone.setOnCheckedChangeListener { buttonView, isChecked ->
-            Log.i("hhh", "Holder   isDone.setOnCheckedChangeListener ${todoItem.id}")
             if (isChecked) {
                 isDone.buttonTintList = ColorStateList.valueOf(ContextCompat.getColor(itemView.context, R.color.color_green))
                 todoTextView.setTextColor(ContextCompat.getColor(itemView.context, R.color.label_tertiary))

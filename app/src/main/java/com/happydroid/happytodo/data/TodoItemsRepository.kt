@@ -1,5 +1,4 @@
 package com.happydroid.happytodo.data
-import android.util.Log
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -32,7 +31,6 @@ class TodoItemsRepository private constructor(){
         val index = todoItems.indexOfFirst { it.id == idTodoItem }
         if (index != -1) {
             todoItems.removeAt(index)
-            Log.i("hhh", "item deleted $idTodoItem")
         }
     }
 
