@@ -46,14 +46,32 @@ class TodolistAdapter : RecyclerView.Adapter<TodolistViewHolder>() {
         val checkboxDone: CheckBox = holder.itemView.findViewById(R.id.checkbox_done)
         checkboxDone.setOnClickListener {
             checkboxClickListener?.invoke(todoItem.id, (it as CheckBox).isChecked)
+            updateTodoItem(todoItem.id, (it as CheckBox).isChecked)
+            updateDoneText()
+
         }
         val buttonInfo: ImageView = holder.itemView.findViewById(R.id.button_info)
         buttonInfo.setOnClickListener {
             infoClickListener?.invoke(todoItem.id)
         }
-
         holder.onBind(todoItems[position])
 
     }
 
+    fun updateDoneText() {
+        val text = "Выполнено — " + todoItems.filter { it.isDone }.size.toString()
+        //Log.i("hhh", text)
+        // TODO
+    }
+
+    fun updateTodoItem(todoId: String, isChecked: Boolean) {
+        val updatedList = todoItems.map { todoItem ->
+            if (todoItem.id == todoId) {
+                todoItem.copy(isDone = isChecked)
+            } else {
+                todoItem
+            }
+        }
+        todoItems = updatedList
+    }
 }
