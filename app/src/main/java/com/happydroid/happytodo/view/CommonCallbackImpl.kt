@@ -1,4 +1,4 @@
-package com.happydroid.happytodo.viewModel
+package com.happydroid.happytodo.view
 
 import androidx.recyclerview.widget.DiffUtil
 

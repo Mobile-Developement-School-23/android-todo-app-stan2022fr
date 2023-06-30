@@ -1,8 +1,9 @@
-package com.happydroid.happytodo
+package com.happydroid.happytodo.view
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.happydroid.happytodo.view.MainFragment
+import com.happydroid.happytodo.R
+import com.happydroid.happytodo.ToDoApplication
 
 class MainActivity : AppCompatActivity() {
 

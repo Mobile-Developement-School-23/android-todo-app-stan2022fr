@@ -1,4 +1,4 @@
-package com.happydroid.happytodo.viewModel
+package com.happydroid.happytodo.view
 
 import android.content.res.ColorStateList
 import android.graphics.Paint
@@ -11,10 +11,10 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.happydroid.happytodo.R
-import com.happydroid.happytodo.data.TodoItem
-import com.happydroid.happytodo.data.TodoItem.Priority.HIGH
-import com.happydroid.happytodo.data.TodoItem.Priority.LOW
-import com.happydroid.happytodo.data.TodoItem.Priority.NORMAL
+import com.happydroid.happytodo.data.model.TodoItem
+import com.happydroid.happytodo.data.model.TodoItem.Priority.HIGH
+import com.happydroid.happytodo.data.model.TodoItem.Priority.LOW
+import com.happydroid.happytodo.data.model.TodoItem.Priority.NORMAL
 import java.text.SimpleDateFormat
 import java.util.Locale
 

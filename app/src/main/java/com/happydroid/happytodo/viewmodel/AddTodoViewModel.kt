@@ -1,8 +1,8 @@
-package com.happydroid.happytodo.viewModel
+package com.happydroid.happytodo.viewmodel
 
 import androidx.lifecycle.ViewModel
-import com.happydroid.happytodo.data.TodoItem
-import com.happydroid.happytodo.data.TodoItemsRepository
+import com.happydroid.happytodo.data.model.TodoItem
+import com.happydroid.happytodo.data.repository.TodoItemsRepository
 import java.util.Date
 import java.util.UUID
 

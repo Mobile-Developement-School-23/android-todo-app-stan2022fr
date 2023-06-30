@@ -1,4 +1,4 @@
-package com.happydroid.happytodo.data
+package com.happydroid.happytodo.data.model
 
 import java.util.Date
 

@@ -16,8 +16,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.happydroid.happytodo.R
-import com.happydroid.happytodo.data.TodoItem
-import com.happydroid.happytodo.viewModel.AddTodoViewModel
+import com.happydroid.happytodo.data.model.TodoItem
+import com.happydroid.happytodo.viewmodel.AddTodoViewModel
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar

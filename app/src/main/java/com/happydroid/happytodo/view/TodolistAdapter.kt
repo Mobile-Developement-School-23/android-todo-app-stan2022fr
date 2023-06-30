@@ -1,4 +1,4 @@
-package com.happydroid.happytodo.viewModel
+package com.happydroid.happytodo.view
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,7 +7,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.happydroid.happytodo.R
-import com.happydroid.happytodo.data.TodoItem
+import com.happydroid.happytodo.data.model.TodoItem
 
 
 class TodolistAdapter : RecyclerView.Adapter<TodolistViewHolder>() {

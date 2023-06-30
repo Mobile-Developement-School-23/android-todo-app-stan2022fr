@@ -1,4 +1,4 @@
-package com.happydroid.happytodo.viewModel
+package com.happydroid.happytodo.viewmodel
 
 import android.app.Application
 import android.os.Bundle
@@ -7,8 +7,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.happydroid.happytodo.R
 import com.happydroid.happytodo.ToDoApplication
-import com.happydroid.happytodo.data.TodoItemsRepository
+import com.happydroid.happytodo.data.repository.TodoItemsRepository
 import com.happydroid.happytodo.view.AddTodoFragment
+import com.happydroid.happytodo.view.TodoItemOffsetItemDecoration
+import com.happydroid.happytodo.view.TodolistAdapter
 
 
 class MainViewModel(private val application: Application) : AndroidViewModel(application)  {
@@ -21,8 +23,10 @@ class MainViewModel(private val application: Application) : AndroidViewModel(app
         todolistRecyclerView.adapter = todolistAdapter
 
         todolistRecyclerView.layoutManager = layoutManager
-        todolistRecyclerView.addItemDecoration(TodoItemOffsetItemDecoration(bottomOffset = resources.getDimensionPixelOffset(
-            R.dimen.bottomOffset_ItemDecoration)))
+        todolistRecyclerView.addItemDecoration(
+            TodoItemOffsetItemDecoration(bottomOffset = resources.getDimensionPixelOffset(
+            R.dimen.bottomOffset_ItemDecoration))
+        )
         todolistAdapter.todoItems = todoItemsRepository.getTodoItems()
 
         todolistAdapter.checkboxClickListener = { todoId, isChecked ->

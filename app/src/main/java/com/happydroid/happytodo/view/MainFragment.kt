@@ -12,7 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.happydroid.happytodo.R
-import com.happydroid.happytodo.viewModel.MainViewModel
+import com.happydroid.happytodo.viewmodel.MainViewModel
 
 class MainFragment : Fragment() {
 
@@ -35,7 +35,7 @@ class MainFragment : Fragment() {
         setHasOptionsMenu(true)
         val rootView = inflater.inflate(R.layout.fragment_main, container, false)
         val todolistRecyclerView: RecyclerView = rootView.findViewById(R.id.todolist)
-        viewModel.setRecyclerView(todolistRecyclerView) // Передаем RecyclerView в нашу ViewModel
+        viewModel.setRecyclerView(todolistRecyclerView)
         return rootView
     }
 
@@ -54,8 +54,8 @@ class MainFragment : Fragment() {
         }
     }
 
-    // Иконка для настроек
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        // Иконка для настроек
         inflater.inflate(R.menu.menu_main, menu)
         super.onCreateOptionsMenu(menu, inflater)
     }
