@@ -23,7 +23,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/checkbox_done"
         app:layout_constraintEnd_toStartOf="@+id/text_todo"
         app:layout_constraintStart_toEndOf="@+id/checkbox_done"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/text_todo"
         app:tint="?attr/color_red" />
 
     <TextView
@@ -32,15 +32,27 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:gravity="top"
-
         android:maxLines="3"
-        android:text="Купить продукты в супермаркете"
+        android:text="Купить продукты"
         android:textColor="?attr/label_primary"
         android:textSize="19sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button_info"
         app:layout_constraintStart_toEndOf="@+id/priority"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Дата -->
+    <TextView
+        android:id="@+id/dateTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_choose_date"
+        android:textColor="?attr/label_primary"
+        android:textSize="16sp"
+        android:visibility="gone"
+
+        app:layout_constraintStart_toStartOf="@+id/text_todo"
+        app:layout_constraintTop_toBottomOf="@+id/text_todo" />
 
     <ImageView
         android:id="@+id/button_info"
