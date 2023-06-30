@@ -1,18 +1,20 @@
 package com.happydroid.happytodo.viewModel
 
-import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.happydroid.happytodo.R
-import com.happydroid.happytodo.ToDoApplication
 import com.happydroid.happytodo.data.TodoItem
-import com.happydroid.happytodo.view.AddTodoFragment
 
 
-class TodolistAdapter(private val application: ToDoApplication) : RecyclerView.Adapter<TodolistViewHolder>() {
+class TodolistAdapter() : RecyclerView.Adapter<TodolistViewHolder>() {
+
+    var checkboxClickListener: ((todoId: String, isChecked : Boolean) -> Unit)? = null
+    var infoClickListener: ((todoId: String) -> Unit)? = null
 
     var todoItems = listOf<TodoItem>()
         set(value) {
@@ -40,24 +42,18 @@ class TodolistAdapter(private val application: ToDoApplication) : RecyclerView.A
     override fun getItemCount() = todoItems.size
 
     override fun onBindViewHolder(holder: TodolistViewHolder, position: Int) {
+        val todoItem = todoItems[position]
+        Log.i("hhh", todoItem.id + " " + todoItem.text)
 
+        val checkboxDone: CheckBox = holder.itemView.findViewById(R.id.checkbox_done)
+        checkboxDone.setOnClickListener {
+            Log.i("hhh", " Adapter isDone.setOnClickListener ${todoItem.id}")
+            checkboxClickListener?.invoke(todoItem.id, (it as CheckBox).isChecked)
+        }
         val buttonInfo: ImageView = holder.itemView.findViewById(R.id.button_info)
         buttonInfo.setOnClickListener {
-
-            val addTodoFragment = AddTodoFragment()
-
-            // Создаем Bundle и добавляем данные
-            val bundle  = Bundle()
-            bundle.putString("idTodoItem", todoItems[position].id)
-            addTodoFragment.arguments = bundle
-
-            val fragmentManager = application.getFragmentManager()
-            if (fragmentManager != null){
-                val fragmentTransaction = fragmentManager.beginTransaction()
-                fragmentTransaction.replace(R.id.container, addTodoFragment)
-                fragmentTransaction.addToBackStack(null)
-                fragmentTransaction.commit()
-                }
+            Log.i("hhh", " Adapter buttonInfo.setOnClickListener")
+            infoClickListener?.invoke(todoItem.id)
         }
 
         holder.onBind(todoItems[position])

@@ -1,9 +1,14 @@
 package com.happydroid.happytodo.view
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.happydroid.happytodo.R
@@ -58,13 +63,9 @@ class MainFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_settings -> {
-                // Создаем экземпляр SettingsFragment
                 val settingsFragment = SettingsFragment()
-
-                // Получаем FragmentManager
                 val fragmentManager = requireActivity().supportFragmentManager
 
-                // Заменяем текущий фрагмент на SettingsFragment
                 fragmentManager.beginTransaction()
                     .replace(R.id.container, settingsFragment)
                     .addToBackStack(null)

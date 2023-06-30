@@ -1,6 +1,7 @@
 package com.happydroid.happytodo.data
 import android.util.Log
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 class TodoItemsRepository private constructor(){
@@ -16,7 +17,7 @@ class TodoItemsRepository private constructor(){
         return todoItems.toList()
     }
 
-    fun addTodoItem(todoItem: TodoItem) {
+    fun addOrUpdateTodoItem(todoItem: TodoItem) {
         val index = todoItems.indexOfFirst { it.id == todoItem.id }
         if (index != -1) {
             // Элемент найден, перезаписываем его
@@ -59,6 +60,13 @@ class TodoItemsRepository private constructor(){
 
     fun getTodoItem(idTodoItem: String): TodoItem? {
         return todoItems.find { it.id == idTodoItem }
+    }
+
+    fun changeStatusTodoItem(idTodoItem: String, isDone: Boolean) {
+        val newItem = todoItems.find { it.id == idTodoItem }?.copy(isDone = isDone, modifiedDate = Date())
+        if (newItem != null){
+            addOrUpdateTodoItem(newItem)
+        }
     }
 
     companion object {

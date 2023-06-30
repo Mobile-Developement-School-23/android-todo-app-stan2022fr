@@ -1,7 +1,7 @@
 package com.happydroid.happytodo
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.happydroid.happytodo.view.MainFragment
 
 class MainActivity : AppCompatActivity() {
@@ -10,7 +10,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Сохраняем FragmentManager в Application, чтобы использовать его в TodolistAdapter
+        // Сохраняем FragmentManager в Application, чтобы использовать его в MainViewModel
         val application = application as ToDoApplication
         application.setFragmentManager(supportFragmentManager)
 

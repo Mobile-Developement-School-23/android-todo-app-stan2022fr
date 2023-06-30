@@ -3,7 +3,6 @@ package com.happydroid.happytodo.view
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.text.Editable
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,28 +12,24 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.SwitchCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.happydroid.happytodo.R
 import com.happydroid.happytodo.data.TodoItem
 import com.happydroid.happytodo.viewModel.AddTodoViewModel
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import java.util.UUID
 
 class AddTodoFragment : Fragment() {
 
-    private lateinit var viewModel: AddTodoViewModel
-    private var selectedDate: Date? = null
-    private var todoItem : TodoItem? = null
-    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-
-    val monthNames = arrayOf(
-        "января", "февраля", "марта", "апреля", "мая", "июня",
-        "июля", "августа", "сентября", "октября", "ноября", "декабря"
-    )
+    private lateinit var addTodoViewModel: AddTodoViewModel
+    private var todoItem: TodoItem? = null
+    private val dateFormatter = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+    private val calendar = Calendar.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,7 +42,7 @@ class AddTodoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel = ViewModelProvider(this).get(AddTodoViewModel::class.java)
+        addTodoViewModel = ViewModelProvider(this)[AddTodoViewModel::class.java]
         val dateSwitch: SwitchCompat = view.findViewById(R.id.dateSwitch)
         val dateText: TextView = view.findViewById(R.id.dateTextView)
         val deleteButton: TextView = view.findViewById(R.id.deleteButton)
@@ -56,7 +51,7 @@ class AddTodoFragment : Fragment() {
         // получаем TodoItem из Bundle
         val bundle = arguments
         val idTodoItem = bundle?.getString("idTodoItem")
-        todoItem = idTodoItem?.let { viewModel.getTodoItem(it) }
+        todoItem = idTodoItem?.let { addTodoViewModel.getTodoItem(it) }
         if (todoItem != null) {
 
             editText.text = Editable.Factory.getInstance().newEditable(todoItem!!.text)
@@ -68,11 +63,7 @@ class AddTodoFragment : Fragment() {
             if (todoItem!!.deadline != null){
                 dateSwitch.isChecked = true
 
-                val calendar = Calendar.getInstance()
-                calendar.time = todoItem!!.deadline!!
-                val formattedDate = "${calendar.get(Calendar.DAY_OF_MONTH)} ${monthNames[calendar.get(Calendar.MONTH)]} ${calendar.get(Calendar.YEAR)}"
-                dateText.text= formattedDate
-
+                dateText.text= dateFormatter.format(todoItem!!.deadline!!)
                 dateText.visibility = View.VISIBLE
             }
 
@@ -86,7 +77,7 @@ class AddTodoFragment : Fragment() {
         val saveButton: TextView = view.findViewById(R.id.saveButton)
         saveButton.setOnClickListener {
             if (editText.text.isNullOrEmpty()) {
-                Toast.makeText(requireContext(), "Название задачи не должно быть пустым!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), getString(R.string.alert_vide_text), Toast.LENGTH_SHORT).show()
             }else{
                 saveTodo(todoItem?.id)
                 requireActivity().supportFragmentManager.popBackStack()
@@ -102,7 +93,7 @@ class AddTodoFragment : Fragment() {
 
         // Установка обработчика клика на кнопку "Удалить"
         deleteButton.setOnClickListener {
-            todoItem?.id?.let { viewModel.deleteTodoItem(todoItem?.id!!) }
+            todoItem?.id?.let { addTodoViewModel.deleteTodoItem(todoItem?.id!!) }
             requireActivity().supportFragmentManager.popBackStack()
         }
 
@@ -123,16 +114,13 @@ class AddTodoFragment : Fragment() {
     }
 
     private fun showCalendar(dateText: TextView) {
-        val calendar = Calendar.getInstance()
+
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
         val datePickerDialog = DatePickerDialog(requireContext(), { view, selectedYear, selectedMonth, selectedDay ->
-            val selectedDateCalendar = Calendar.getInstance()
-            selectedDateCalendar.set(selectedYear, selectedMonth, selectedDay)
-            selectedDate = dateFormat.parse("$selectedDay/$selectedMonth/$selectedYear")
-            val formattedDate = "$selectedDay ${monthNames[selectedMonth]} $selectedYear"
-            dateText.text= formattedDate
+            calendar.set(selectedYear, selectedMonth, selectedDay)
+            dateText.text= dateFormatter.format(calendar.time)
             dateText.visibility = View.VISIBLE
 
         }, year, month, day)
@@ -144,32 +132,25 @@ class AddTodoFragment : Fragment() {
         dateText.visibility = View.GONE
     }
 
-    fun saveTodo(oldId : String?) {
-        var id = ""
+    private fun saveTodo(oldId : String?) {
+
         val editTextTodoText = requireView().findViewById<EditText>(R.id.editText)
         val spinnerPriority = requireView().findViewById<Spinner>(R.id.prioritySpinner)
-
+        val selectedDate = requireView().findViewById<TextView>(R.id.dateTextView)
         val todoText = editTextTodoText.text.toString()
         val priorityId = spinnerPriority.selectedItemId
-
-        // если это редактирование, то используем прошлый id
-        if (oldId == null){
-            id = UUID.randomUUID().toString()
-        }else{
-            id = oldId
+        var date: Date? = null
+       if (selectedDate.isVisible && selectedDate.text != getString(R.string.text_choose_date)) {
+            try {
+                date = dateFormatter.parse(selectedDate.text.toString())
+            } catch (e: ParseException) {
+                e.printStackTrace()
+            }
         }
+        addTodoViewModel.addOrUpdateTodoItem(oldId, todoText, TodoItem.Priority.values()[priorityId.toInt()], date)
 
-        val todoItem = TodoItem(
-            id = id,
-            text = todoText,
-            priority = TodoItem.Priority.values()[priorityId.toInt()],
-            deadline = selectedDate,
-            isDone = false,
-            createdDate = Date(),
-            modifiedDate = null
-        )
-        Log.i("hhh", "selectedDate $selectedDate")
-        viewModel.addTodoItem(todoItem)
+
+
     }
 
 }

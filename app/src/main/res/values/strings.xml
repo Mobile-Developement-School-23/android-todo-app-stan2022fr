@@ -20,6 +20,7 @@
     <string name="priority_high">Высокая</string>
     <string name="hint_what_todo">Что нужно сделать</string>
     <string name="button_save">СОХРАНИТЬ</string>
+    <string name="alert_vide_text">Название задачи не должно быть пустым!</string>
 
 
 </resources>
