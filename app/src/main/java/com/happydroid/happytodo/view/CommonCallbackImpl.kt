@@ -1,29 +1,15 @@
 package com.happydroid.happytodo.view
 
 import androidx.recyclerview.widget.DiffUtil
+import com.happydroid.happytodo.data.model.TodoItem
 
-class CommonCallbackImpl<T>(
-    private val oldItems: List<T>,
-    private val newItems: List<T>,
-    private val areItemsTheSameImpl: (oldItem: T, newItem: T) -> Boolean =
-        { oldItem, newItem -> oldItem == newItem },
-    private val areContentsTheSameImpl: (oldItem: T, newItem: T) -> Boolean =
-        { oldItem, newItem -> oldItem == newItem }
-) : DiffUtil.Callback() {
+class CommonCallbackImpl : DiffUtil.ItemCallback<TodoItem>() {
 
-    override fun getOldListSize() = oldItems.size
-
-    override fun getNewListSize() = newItems.size
-
-    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val oldItem = oldItems[oldItemPosition]
-        val newItem = newItems[newItemPosition]
-        return areItemsTheSameImpl(oldItem, newItem)
+    override fun areItemsTheSame(oldItem: TodoItem, newItem: TodoItem): Boolean {
+        return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        val oldItem = oldItems[oldItemPosition]
-        val newItem = newItems[newItemPosition]
-        return areContentsTheSameImpl(oldItem, newItem)
+    override fun areContentsTheSame(oldItem: TodoItem, newItem: TodoItem): Boolean {
+        return oldItem.equals(newItem)
     }
 }

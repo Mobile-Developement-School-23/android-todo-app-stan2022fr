@@ -26,7 +26,8 @@ class HardCodedDataSource {
         items.add(TodoItem("15", "Закончить чтение новой книги", TodoItem.Priority.LOW, null, false, dateFormat.parse("13/06/2023")!!, null))
 
     }
-    fun loadTodoItems(): List<TodoItem> {
+    suspend fun loadTodoItems(): List<TodoItem> {
+//        delay(3000L)
         return items
     }
 

@@ -91,7 +91,7 @@ class TodolistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
             }
         }
-        if (todoItem.deadline != null){
+        if (todoItem.deadline != null && !todoItem.isDone) {
             dateTextView.text = dateFormatter.format(todoItem.deadline)
             dateTextView.visibility = View.VISIBLE
         }

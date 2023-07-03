@@ -1,62 +1,32 @@
 package com.happydroid.happytodo.viewmodel
 
-import android.app.Application
-import android.os.Bundle
-import androidx.lifecycle.AndroidViewModel
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.happydroid.happytodo.R
-import com.happydroid.happytodo.ToDoApplication
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.happydroid.happytodo.data.model.TodoItem
 import com.happydroid.happytodo.data.repository.TodoItemsRepository
-import com.happydroid.happytodo.view.AddTodoFragment
-import com.happydroid.happytodo.view.TodoItemOffsetItemDecoration
-import com.happydroid.happytodo.view.TodolistAdapter
+import kotlinx.coroutines.launch
 
 
-class MainViewModel(private val application: Application) : AndroidViewModel(application)  {
+class MainViewModel : ViewModel() {
     private val todoItemsRepository = TodoItemsRepository.getInstance()
-    private val todolistAdapter: TodolistAdapter = TodolistAdapter()
-    private val resources = application.resources
+    private val _todoItems = MediatorLiveData<List<TodoItem>>(emptyList())
+    val todoItems: LiveData<List<TodoItem>> = _todoItems
+    var showOnlyUnfinishedItems : Boolean = false
 
-    fun setRecyclerView(todolistRecyclerView: RecyclerView) {
-        val layoutManager = LinearLayoutManager(getApplication<Application>().applicationContext, LinearLayoutManager.VERTICAL, false)
-        todolistRecyclerView.adapter = todolistAdapter
-
-        todolistRecyclerView.layoutManager = layoutManager
-        todolistRecyclerView.addItemDecoration(
-            TodoItemOffsetItemDecoration(bottomOffset = resources.getDimensionPixelOffset(
-            R.dimen.bottomOffset_ItemDecoration))
-        )
-        todolistAdapter.todoItems = todoItemsRepository.getTodoItems()
-
-        todolistAdapter.checkboxClickListener = { todoId, isChecked ->
-            changeStatusTodoItem(todoId, isChecked)
-        }
-
-        todolistAdapter.infoClickListener = { todoId ->
-            editTodoItem(todoId)
+    init{
+        _todoItems.addSource(todoItemsRepository.todoItems){
+            todoItems -> _todoItems.value = todoItems
         }
     }
-    private fun changeStatusTodoItem(idTodoItem: String, isDone: Boolean){
-        todoItemsRepository.changeStatusTodoItem(idTodoItem, isDone)
-    }
 
-    private fun editTodoItem(idTodoItem: String){
-
-        val addTodoFragment = AddTodoFragment()
-        val fragmentManager = (application as ToDoApplication).getFragmentManager()
-        // Создаем Bundle и добавляем данные
-        val bundle  = Bundle()
-        bundle.putString("idTodoItem", idTodoItem)
-        addTodoFragment.arguments = bundle
-
-        if (fragmentManager != null){
-            val fragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.replace(R.id.container, addTodoFragment)
-            fragmentTransaction.addToBackStack(null)
-            fragmentTransaction.commit()
+    fun changeStatusTodoItem(idTodoItem: String, isDone: Boolean){
+        viewModelScope.launch {
+            todoItemsRepository.changeStatusTodoItem(idTodoItem, isDone)
         }
     }
+
 
 }
 
