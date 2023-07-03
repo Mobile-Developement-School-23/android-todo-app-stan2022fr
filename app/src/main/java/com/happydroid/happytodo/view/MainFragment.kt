@@ -15,8 +15,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.happydroid.happytodo.R
 import com.happydroid.happytodo.ToDoApplication
+import com.happydroid.happytodo.data.model.ErrorCode
 import com.happydroid.happytodo.data.model.TodoItem
 import com.happydroid.happytodo.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
@@ -49,8 +51,12 @@ class MainFragment : Fragment() {
         setRecyclerView(todolistRecyclerView)
 
         lifecycleScope.launch {
-            mainViewModel.todoItems.collect { todoItems ->
-                updateAdapterData(todoItems)
+            mainViewModel.todoItemsResult.collect { todoItemsResult ->
+                updateAdapterData(todoItemsResult.data)
+
+                if (todoItemsResult.errorMessages.isNotEmpty()){
+                    showMessage(view, todoItemsResult.errorMessages[0])
+                }
             }
         }
 
@@ -63,7 +69,7 @@ class MainFragment : Fragment() {
                 finishedItemsSwitchIcon.setImageResource(R.drawable.visibility_off)
             }
             mainViewModel.showOnlyUnfinishedItems = !mainViewModel.showOnlyUnfinishedItems
-            updateAdapterData(mainViewModel.todoItems.value)
+            updateAdapterData(mainViewModel.todoItemsResult.value.data)
         }
 
         val fabAddTask = view.findViewById<FloatingActionButton>(R.id.fabAddTask)
@@ -78,6 +84,27 @@ class MainFragment : Fragment() {
         }
     }
 
+    private fun showMessage(view: View, errorCode: ErrorCode) {
+        val errorMessagesText = getString(errorCode.stringResId)
+        val retryMessageText = getString(R.string.retry)
+        val snackbar = Snackbar.make(view.findViewById(R.id.mainCoordinatorLayout), errorMessagesText, Snackbar.LENGTH_LONG)
+
+        // Кнопка повтор
+        if (errorCode == ErrorCode.NO_CONNECTION){
+            snackbar.setAction(retryMessageText) {
+                mainViewModel.fetchFromRemote()
+            }
+        }
+
+        // Убираем сообщение из очереди
+        snackbar.addCallback(object : Snackbar.Callback() {
+            override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
+                mainViewModel.onErrorDismiss(errorCode)
+            }
+        })
+        snackbar.show()
+    }
+
     private fun updateAdapterData(todoItems: List<TodoItem>) {
         if (mainViewModel.showOnlyUnfinishedItems) {
             todolistAdapter.submitList(todoItems.filter { it.isDone == false })
@@ -88,7 +115,7 @@ class MainFragment : Fragment() {
     }
 
     fun updateDoneText() {
-        val textDone = getString(R.string.text_done) + mainViewModel.todoItems.value.filter { it.isDone }.size.toString()
+        val textDone = getString(R.string.text_done) + mainViewModel.todoItemsResult.value.data.filter { it.isDone }.size.toString()
         doneTextView.text = textDone
     }
 
