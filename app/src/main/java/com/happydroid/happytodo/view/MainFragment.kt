@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -18,6 +19,7 @@ import com.happydroid.happytodo.R
 import com.happydroid.happytodo.ToDoApplication
 import com.happydroid.happytodo.data.model.TodoItem
 import com.happydroid.happytodo.viewmodel.MainViewModel
+import kotlinx.coroutines.launch
 
 class MainFragment : Fragment() {
 
@@ -46,8 +48,10 @@ class MainFragment : Fragment() {
         val todolistRecyclerView: RecyclerView = view.findViewById(R.id.todolist)
         setRecyclerView(todolistRecyclerView)
 
-        mainViewModel.todoItems.observe(viewLifecycleOwner) { todoItems ->
-            updateAdapterData(todoItems)
+        lifecycleScope.launch {
+            mainViewModel.todoItems.collect { todoItems ->
+                updateAdapterData(todoItems)
+            }
         }
 
         // Фильтр выполненных задач
@@ -59,7 +63,7 @@ class MainFragment : Fragment() {
                 finishedItemsSwitchIcon.setImageResource(R.drawable.visibility_off)
             }
             mainViewModel.showOnlyUnfinishedItems = !mainViewModel.showOnlyUnfinishedItems
-            updateAdapterData(mainViewModel.todoItems.value.orEmpty())
+            updateAdapterData(mainViewModel.todoItems.value)
         }
 
         val fabAddTask = view.findViewById<FloatingActionButton>(R.id.fabAddTask)
@@ -84,7 +88,7 @@ class MainFragment : Fragment() {
     }
 
     fun updateDoneText() {
-        val textDone = getString(R.string.text_done) + mainViewModel.todoItems.value.orEmpty().filter { it.isDone }.size.toString()
+        val textDone = getString(R.string.text_done) + mainViewModel.todoItems.value.filter { it.isDone }.size.toString()
         doneTextView.text = textDone
     }
 
