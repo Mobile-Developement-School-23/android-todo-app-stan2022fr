@@ -1,5 +1,6 @@
 package com.happydroid.happytodo.data.model
 
+import com.happydroid.happytodo.data.network.model.TodoItemNW
 import java.util.Date
 
 data class TodoItem(
@@ -27,4 +28,18 @@ data class TodoItem(
             }
         }
     }
+}
+
+fun TodoItem.toTodoItemNW(): TodoItemNW {
+    return TodoItemNW(
+        id = id,
+        text = text,
+        importance = priority.toString(),
+        deadline = deadline,
+        done = isDone,
+        color = null,
+        changedAt = modifiedDate,
+        createdAt = createdDate,
+        last_updated_by = "Device"
+    )
 }

@@ -27,6 +27,7 @@
     <string name="load_from_local_datasource">Используются локальные данные.</string>
     <string name="load_from_remote_datasource">Данные загружены с сервера.</string>
     <string name="no_connection">Нет подключения к интернету.</string>
+    <string name="unknow_error">Разработчику нужно оторвать руки :)</string>
     <string name="retry">Повторить</string>
 
 

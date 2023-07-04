@@ -1,9 +1,13 @@
 package com.happydroid.happytodo.data.repository
+
 import android.util.Log
 import com.happydroid.happytodo.data.datasource.HardCodedDataSource
 import com.happydroid.happytodo.data.model.ErrorCode
 import com.happydroid.happytodo.data.model.TodoItem
 import com.happydroid.happytodo.data.model.TodoResult
+import com.happydroid.happytodo.data.network.TodoApiFactory
+import com.happydroid.happytodo.data.network.model.TodoListResponseNW
+import com.happydroid.happytodo.data.network.model.toTodoResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,17 +15,24 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 import java.util.Date
 
 class TodoItemsRepository private constructor(){
 
     private val dataSource : HardCodedDataSource= HardCodedDataSource()
+    private val apiRemote = TodoApiFactory.retrofitService
     private val _todoItemsResult = MutableStateFlow(TodoResult())
     val todoItemsResult: StateFlow<TodoResult> = _todoItemsResult
 
     init {
-        CoroutineScope(Dispatchers.Main).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             updateTodoItems()
+            fetchFromRemote()
+
+        // загрузка на сервер НЕ РАБОТАЕТ - crash
+        // apiRemote.updateAll(todoItemsResult.value.data.map { it.toTodoItemNW() })
+
         }
     }
 
@@ -35,6 +46,27 @@ class TodoItemsRepository private constructor(){
 
     suspend fun fetchFromRemote() {
         Log.i("hhh", "TodoItemsRepository.fetchFromRemote()")
+        withContext(Dispatchers.IO) {
+            try {
+                val response: Response<TodoListResponseNW> = apiRemote.fetchAll()
+
+                if (response.isSuccessful) {
+                    val todoListResponseNW: TodoListResponseNW? = response.body()
+                    Log.i("hhh", todoListResponseNW.toString())
+                    _todoItemsResult.value = todoListResponseNW?.toTodoResult(listOf(ErrorCode.LOAD_FROM_REMOTE)) ?: TodoResult(
+                        emptyList(), listOf(ErrorCode.UNKNOW_ERROR)
+                    )
+
+                } else {
+                    _todoItemsResult.value = TodoResult(todoItemsResult.value.data, listOf(ErrorCode.NO_CONNECTION))
+                    val errorMessage = response.errorBody()?.string()
+                    Log.e("TodoItemsRepository", "Error: $errorMessage")
+                }
+            } catch (e: Exception) {
+                Log.e("TodoItemsRepository", "Exception: ${e.message}")
+            }
+        }
+
     }
 
     fun onErrorDismiss(messageId : ErrorCode){
