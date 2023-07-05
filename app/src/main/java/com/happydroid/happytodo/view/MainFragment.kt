@@ -94,6 +94,7 @@ class MainFragment : Fragment() {
             snackbar.setAction(retryMessageText) {
                 mainViewModel.fetchFromRemote()
             }
+            snackbar.duration = Snackbar.LENGTH_INDEFINITE
         }
 
         // Убираем сообщение из очереди

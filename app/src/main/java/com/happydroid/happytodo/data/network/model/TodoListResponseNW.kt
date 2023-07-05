@@ -7,17 +7,17 @@ import com.happydroid.happytodo.data.model.TodoResult
 import java.util.Date
 
 data class TodoListResponseNW(
-    @SerializedName("status") val status: String?,
+    @SerializedName("status") override val status: String?,
     @SerializedName("list") val list: List<TodoItemNW>?,
-    @SerializedName("revision") val revision: Int?
-)
+    @SerializedName("revision") override val revision: Int?
+) : ResponseNW
 
 fun TodoListResponseNW.toTodoResult(errorMessages : List<ErrorCode>): TodoResult {
     val todoItems: List<TodoItem> = this.list?.map { todoItemNW ->
         TodoItem(
             id = todoItemNW.id ?: "",
             text = todoItemNW.text ?: "",
-            priority = TodoItem.Priority.fromString(todoItemNW.importance?: "@string/priority_none") ,
+            priority = TodoItem.Priority.fromString(todoItemNW.importance) ,
             deadline = todoItemNW.deadline,
             isDone = todoItemNW.done ?: false,
             modifiedDate = todoItemNW.changedAt,

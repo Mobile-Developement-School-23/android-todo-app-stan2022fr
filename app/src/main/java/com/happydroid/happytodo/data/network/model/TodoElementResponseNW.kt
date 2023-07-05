@@ -3,7 +3,8 @@ package com.happydroid.happytodo.data.network.model
 import com.google.gson.annotations.SerializedName
 
 data class TodoElementResponseNW(
-    @SerializedName("revision") val revision: Int?,
+    @SerializedName("revision") override val revision: Int?,
     @SerializedName("element") val element: TodoItemNW?,
-    @SerializedName("status") val status: String?,
-)
+    @SerializedName("status") override val status: String?,
+) : ResponseNW
+

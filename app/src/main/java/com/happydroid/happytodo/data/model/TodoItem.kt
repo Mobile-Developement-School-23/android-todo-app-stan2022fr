@@ -1,5 +1,7 @@
 package com.happydroid.happytodo.data.model
 
+import com.happydroid.happytodo.data.network.model.RevisionHolder
+import com.happydroid.happytodo.data.network.model.TodoElementRequestNW
 import com.happydroid.happytodo.data.network.model.TodoItemNW
 import java.util.Date
 
@@ -13,16 +15,17 @@ data class TodoItem(
     val modifiedDate: Date?
 ){
 
-    enum class Priority {
-        NORMAL, LOW,  HIGH;
+    enum class Priority(val value: String? = "basic") {
+        NORMAL("basic"),
+        LOW("low"),
+        HIGH("important");
 
         companion object {
-            fun fromString(value: String): Priority {
+            fun fromString(value: String? = "basic"): Priority {
                 return when (value) {
-
-                    "@string/priority_none" -> NORMAL
-                    "@string/priority_low" -> LOW
-                    "@string/priority_high" -> HIGH
+                    "low" -> LOW
+                    "basic" -> NORMAL
+                    "important" -> HIGH
                     else -> NORMAL
                 }
             }
@@ -34,12 +37,16 @@ fun TodoItem.toTodoItemNW(): TodoItemNW {
     return TodoItemNW(
         id = id,
         text = text,
-        importance = priority.toString(),
+        importance = priority.value,
         deadline = deadline,
         done = isDone,
         color = null,
-        changedAt = modifiedDate,
+        changedAt = modifiedDate?: createdDate,
         createdAt = createdDate,
-        last_updated_by = "Device"
+        last_updated_by = RevisionHolder.deviceId
     )
+}
+
+fun TodoItem.toTodoElementRequestNW(): TodoElementRequestNW {
+    return TodoElementRequestNW(this.toTodoItemNW())
 }
