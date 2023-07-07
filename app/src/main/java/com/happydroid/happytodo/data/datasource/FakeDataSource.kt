@@ -4,7 +4,7 @@ import com.happydroid.happytodo.data.model.TodoItem
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class HardCodedDataSource {
+class FakeDataSource {
     val items = mutableListOf<TodoItem>()
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 

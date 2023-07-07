@@ -7,7 +7,7 @@ data class TodoResult(
     val errorMessages: List<ErrorCode> = emptyList()
 )
 enum class ErrorCode(val stringResId: Int) {
-    LOAD_FROM_HARDCODED_DATASOURCE(R.string.load_from_hardcoded_datasource),
+    LOAD_FROM_HARDCODED_DATASOURCE(R.string.load_from_fake_datasource),
     LOAD_FROM_LOCAL(R.string.load_from_local_datasource),
     LOAD_FROM_REMOTE(R.string.load_from_remote_datasource),
     NO_CONNECTION(R.string.no_connection),

@@ -1,12 +1,18 @@
 package com.happydroid.happytodo.data.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.happydroid.happytodo.data.local.DateConverter
 import com.happydroid.happytodo.data.network.model.RevisionHolder
 import com.happydroid.happytodo.data.network.model.TodoElementRequestNW
 import com.happydroid.happytodo.data.network.model.TodoItemNW
 import java.util.Date
 
+@Entity(tableName = "todo_items")
+@TypeConverters(DateConverter::class)
 data class TodoItem(
-    val id: String,
+    @PrimaryKey val id: String,
     val text: String,
     val priority: Priority,
     val deadline: Date?,

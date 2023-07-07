@@ -1,7 +1,10 @@
 package com.happydroid.happytodo.data.repository
 
+import android.app.Application
 import android.util.Log
-import com.happydroid.happytodo.data.datasource.HardCodedDataSource
+import com.happydroid.happytodo.data.datasource.FakeDataSource
+import com.happydroid.happytodo.data.local.LocalStorage
+import com.happydroid.happytodo.data.local.TodoItemDao
 import com.happydroid.happytodo.data.model.ErrorCode
 import com.happydroid.happytodo.data.model.TodoItem
 import com.happydroid.happytodo.data.model.TodoResult
@@ -26,9 +29,10 @@ import java.net.InetAddress
 import java.net.UnknownHostException
 import java.util.Date
 
-class TodoItemsRepository private constructor(){
+class TodoItemsRepository private constructor(application: Application){
 
-    private val dataSource : HardCodedDataSource= HardCodedDataSource()
+    private val fakeDataSource : FakeDataSource= FakeDataSource()
+    private val todoItemDao: TodoItemDao = LocalStorage.getDatabase(application).todoItems()
     private val apiRemote = TodoApiFactory.retrofitService
     private val _todoItemsResult = MutableStateFlow(TodoResult())
     val todoItemsResult: StateFlow<TodoResult> = _todoItemsResult
@@ -36,28 +40,40 @@ class TodoItemsRepository private constructor(){
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
-             fetchFromRemote()
-            if (todoItemsResult.value.data.isEmpty()){
-                updateTodoItems()
-                saveAllToServer()
-            }
+            observeLocalTodoItems()
+        }
 
-            if(! isInternetAvailable()){
+        CoroutineScope(Dispatchers.IO).launch {
+            fetchFromRemoteApi()
+            if (todoItemDao.getTodoItemCount() == 0 && todoItemsResult.value.data.isEmpty()) {
+                loadFakesTodoItems()
+                todoItemDao.addAll(todoItemsResult.value.data)
+            }
+            saveAllTodoItemsToRemote()
+
+            if (!isInternetAvailable()) {
+                Log.i("HappyTodo", "No internet connection")
                 delay(5000L)
                 val message = ErrorCode.NO_CONNECTION
                 _todoItemsResult.value = todoItemsResult.value.copy(errorMessages = listOf(message))
-                Log.i("hhh", "No internet connection")
             }
         }
     }
-    suspend fun saveAllToServer(){
-        Log.i("hhh", "saveAllToServer")
+
+    suspend fun observeLocalTodoItems() {
+        todoItemDao.observeAll().collect { todoItems ->
+            _todoItemsResult.value = TodoResult(data = todoItems)
+        }
+    }
+
+
+    suspend fun saveAllTodoItemsToRemote(){
         try {
             val response = apiRemote.updateAll(
                 TodoListRequestNW(todoItemsResult.value.data.map { it.toTodoItemNW()  }))
             handleResponse(response as Response<ResponseNW>)
         } catch (e: Exception) {
-            Log.e("TodoItemsRepository.saveAllToServer()", "Exception: ${e.message}")
+            Log.e("TodoItemsRepository.saveAllTodoItemsToRemote()", "Exception: ${e.message}")
         }
     }
 
@@ -66,12 +82,10 @@ class TodoItemsRepository private constructor(){
             attempt = 0
             val responseNW: ResponseNW? = response.body()
             responseNW?.revision?.let { RevisionHolder.revision = it }
-            Log.i("hhh", "handleResponse. Revision: " + RevisionHolder.revision.toString())
-            Log.i("hhh", "handleResponse. Attempt: " + attempt.toString())
 
         } else {
             val errorCode = response.code()
-            Log.i("hhh", "Код ошибки сервера: " + errorCode)
+            Log.i("HappyTodo", "Код ошибки сервера: " + errorCode)
 
             attempt++
             var message : ErrorCode? = null
@@ -82,8 +96,8 @@ class TodoItemsRepository private constructor(){
                 if(errorCode == 400 || errorCode == 500){
                     try {
                         apiRemote.fetchAll() // запрос, чтобы просто получить Revision
-                        saveAllToServer()   // в идеале, бэк должен смержить все данные
-                        fetchFromRemote() //получаем обновленные данные с сервера
+                        saveAllTodoItemsToRemote()   // в идеале, бэк должен смержить все данные
+                        fetchFromRemoteApi() //получаем обновленные данные с сервера
                     }catch (e: Exception) {
                         Log.e("TodoItemsRepository", "Exception: ${e.message}")
                     }
@@ -109,15 +123,14 @@ class TodoItemsRepository private constructor(){
         }
     }
 
-    suspend fun updateTodoItems() {
+    suspend fun loadFakesTodoItems() {
          withContext(Dispatchers.IO) {
-             val loadedList = dataSource.loadTodoItems()
+             val loadedList = fakeDataSource.loadTodoItems()
              _todoItemsResult.value = TodoResult(loadedList, listOf(ErrorCode.LOAD_FROM_HARDCODED_DATASOURCE))
         }
     }
 
-    suspend fun fetchFromRemote() {
-        Log.i("hhh", "TodoItemsRepository.fetchFromRemote()")
+    suspend fun fetchFromRemoteApi() {
         withContext(Dispatchers.IO) {
             try {
                 val response = apiRemote.fetchAll()
@@ -146,11 +159,7 @@ class TodoItemsRepository private constructor(){
 
     }
 
-    /**
-     * Убираем сообщение из очереди
-     */
-    fun onErrorDismiss(messageId : ErrorCode){
-        Log.i("hhh", "TodoItemsRepository.onErrorDismiss() " + messageId)
+    fun removeMessageFromQueue(messageId : ErrorCode){
         _todoItemsResult.update { todoItemsResult ->
             val errorMessages = todoItemsResult.errorMessages
                 .filterNot { it.stringResId == messageId.stringResId}
@@ -166,6 +175,8 @@ class TodoItemsRepository private constructor(){
 
         withContext(Dispatchers.IO) {
             try{
+                todoItemDao.deleteById(idTodoItem)
+
                 val response = apiRemote.deleteItem (idTodoItem)
                 handleResponse(response as Response<ResponseNW>)
             } catch (e: Exception) {
@@ -193,10 +204,13 @@ class TodoItemsRepository private constructor(){
             }
         }
         _todoItemsResult.value = TodoResult(newItems)
+
+
         try{
             withContext(Dispatchers.IO) {
                 val newItem = getTodoItem(idTodoItem)
-                newItem?.let{
+                 newItem?.let{
+                    todoItemDao.editTodoItem(newItem)
                     val response = apiRemote.updateItem (idTodoItem, it.toTodoElementRequestNW())
                     handleResponse(response as Response<ResponseNW>)
                 }
@@ -227,8 +241,10 @@ class TodoItemsRepository private constructor(){
         try{
             withContext(Dispatchers.IO) {
                 if (isExisted){
+                    todoItemDao.editTodoItem(todoItem)
                     response = apiRemote.updateItem(todoItem.id, todoItem.toTodoElementRequestNW()) as Response<ResponseNW>
                 }else{
+                    todoItemDao.addTodoItem(todoItem)
                     response = apiRemote.addItem(todoItem.toTodoElementRequestNW()) as Response<ResponseNW>
                 }
                 handleResponse(response)
@@ -250,6 +266,7 @@ class TodoItemsRepository private constructor(){
             withContext(Dispatchers.IO) {
                 val newItem = getTodoItem(newTodoItem.id)
                 newItem?.let{
+                    todoItemDao.editTodoItem(newItem)
                     val response = apiRemote.updateItem (newItem.id, it.toTodoElementRequestNW())
                     handleResponse(response as Response<ResponseNW>)
                 }
@@ -275,9 +292,9 @@ class TodoItemsRepository private constructor(){
         @Volatile
         private var instance: TodoItemsRepository? = null
 
-        fun getInstance(): TodoItemsRepository {
+        fun getInstance(application: Application): TodoItemsRepository {
             return instance ?: synchronized(this) {
-                instance ?: TodoItemsRepository().also { instance = it }
+                instance ?: TodoItemsRepository(application).also { instance = it }
             }
         }
     }

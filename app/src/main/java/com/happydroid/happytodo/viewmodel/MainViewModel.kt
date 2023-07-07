@@ -10,8 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 
-class MainViewModel : ViewModel() {
-    private val todoItemsRepository = TodoItemsRepository.getInstance()
+class MainViewModel(private val todoItemsRepository: TodoItemsRepository) : ViewModel() {
     private val _todoItemsResult = MutableStateFlow(TodoResult())
     val todoItemsResult: StateFlow<TodoResult> = _todoItemsResult
     var showOnlyUnfinishedItems : Boolean = false
@@ -32,13 +31,13 @@ class MainViewModel : ViewModel() {
 
     fun fetchFromRemote(){
         viewModelScope.launch {
-            todoItemsRepository.fetchFromRemote()
+            todoItemsRepository.fetchFromRemoteApi()
         }
     }
 
     fun onErrorDismiss(messageId : ErrorCode){
         viewModelScope.launch {
-            todoItemsRepository.onErrorDismiss(messageId)
+            todoItemsRepository.removeMessageFromQueue(messageId)
         }
     }
 

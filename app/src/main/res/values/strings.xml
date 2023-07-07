@@ -24,7 +24,7 @@
     <string name="alert_vide_text">Название задачи не должно быть пустым!</string>
     <string name="settings">Настройки</string>
     <string name="text_done">"Выполнено — "</string>
-    <string name="load_from_hardcoded_datasource">Данные загружены из HardCodedDataSource.</string>
+    <string name="load_from_fake_datasource">Данные загружены из FakeDataSource.</string>
     <string name="load_from_local_datasource">Используются локальные данные.</string>
     <string name="load_from_remote_datasource">Данные загружены с сервера.</string>
     <string name="no_connection">Нет подключения к интернету.</string>

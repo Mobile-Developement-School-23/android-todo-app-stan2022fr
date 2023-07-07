@@ -9,12 +9,11 @@ import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.UUID
 
-class AddTodoViewModel : ViewModel() {
-    private val todoItemsRepository = TodoItemsRepository.getInstance()
+class AddTodoViewModel(private val todoItemsRepository: TodoItemsRepository) : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        Log.i("hhh", "AddTodoViewModel onCleared")
+        Log.i("HappyTodo", "AddTodoViewModel onCleared")
 
     }
     fun addOrUpdateTodoItem(oldId : String?, todoText : String, priority : TodoItem.Priority, deadline : Date?) {

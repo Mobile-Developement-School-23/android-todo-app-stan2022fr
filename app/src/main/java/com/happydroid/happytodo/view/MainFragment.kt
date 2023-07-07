@@ -11,6 +11,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,6 +22,7 @@ import com.happydroid.happytodo.R
 import com.happydroid.happytodo.ToDoApplication
 import com.happydroid.happytodo.data.model.ErrorCode
 import com.happydroid.happytodo.data.model.TodoItem
+import com.happydroid.happytodo.data.repository.TodoItemsRepository
 import com.happydroid.happytodo.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -29,7 +32,19 @@ class MainFragment : Fragment() {
         fun newInstance() = MainFragment()
     }
 
-    private val mainViewModel: MainViewModel by viewModels()
+    private val mainViewModel: MainViewModel by viewModels {
+        object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                val repository = TodoItemsRepository.getInstance(requireActivity().application)
+                if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+                    return MainViewModel(repository) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    }
+
     private val todolistAdapter: TodolistAdapter = TodolistAdapter()
     private lateinit var doneTextView : TextView
 

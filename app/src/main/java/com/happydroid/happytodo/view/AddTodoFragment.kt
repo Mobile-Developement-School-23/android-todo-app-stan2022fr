@@ -17,8 +17,11 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.happydroid.happytodo.R
 import com.happydroid.happytodo.data.model.TodoItem
+import com.happydroid.happytodo.data.repository.TodoItemsRepository
 import com.happydroid.happytodo.viewmodel.AddTodoViewModel
 import kotlinx.coroutines.runBlocking
 import java.text.ParseException
@@ -29,7 +32,19 @@ import java.util.Locale
 
 class AddTodoFragment : Fragment() {
 
-    private val addTodoViewModel: AddTodoViewModel by viewModels()
+    private val addTodoViewModel: AddTodoViewModel by viewModels {
+        object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                val repository = TodoItemsRepository.getInstance(requireActivity().application)
+                if (modelClass.isAssignableFrom(AddTodoViewModel::class.java)) {
+                    return AddTodoViewModel(repository) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    }
+
     private var todoItem: TodoItem? = null
     private val dateFormatter = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
     private val calendar = Calendar.getInstance()
