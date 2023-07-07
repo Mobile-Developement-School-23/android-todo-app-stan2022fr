@@ -1,4 +1,4 @@
-package com.happydroid.happytodo.view
+package com.happydroid.happytodo.presentation.main.rv
 
 import android.graphics.Rect
 import android.view.View

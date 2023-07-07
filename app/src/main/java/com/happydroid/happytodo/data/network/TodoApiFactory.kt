@@ -8,16 +8,20 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Date
 
+/**
+ * This object is responsible for creating instances of the TodoApi.
+ */
 object TodoApiFactory {
 
     private const val BASE_URL = "https://beta.mrdekk.ru/todobackend/"
     private var okHttpClient: OkHttpClient
-    private var gson : Gson
+    private var gson: Gson
 
     init {
         val authInterceptor = AuthInterceptor()
         val revisionInterceptor = RevisionInterceptor()
-        val httpLoggingInterceptor = HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+        val httpLoggingInterceptor =
+            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
         httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
         okHttpClient = OkHttpClient.Builder()
             .addInterceptor(httpLoggingInterceptor)

@@ -1,6 +1,9 @@
 package com.happydroid.happytodo.data.network.model
 
-interface ResponseNW {
+/**
+ * Interface for network response handling.
+ */
+interface ResponseNetwork {
     val status: String?
     val revision: Int?
 }

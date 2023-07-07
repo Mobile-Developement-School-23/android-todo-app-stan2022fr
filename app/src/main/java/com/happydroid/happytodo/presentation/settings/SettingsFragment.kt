@@ -1,4 +1,4 @@
-package com.happydroid.happytodo.view
+package com.happydroid.happytodo.presentation.settings
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatDelegate
@@ -7,6 +7,9 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import com.happydroid.happytodo.R
 
+/**
+ * This class represents a fragment that displays and handles application settings.
+ */
 class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -30,6 +33,5 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
     }
-
 
 }

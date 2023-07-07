@@ -1,4 +1,4 @@
-package com.happydroid.happytodo.view
+package com.happydroid.happytodo.presentation.main.rv
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -11,32 +11,32 @@ import com.happydroid.happytodo.data.model.TodoItem
 
 class TodolistAdapter : ListAdapter<TodoItem, TodolistViewHolder>(CommonCallbackImpl()) {
 
-    var checkboxClickListener: ((todoId: String, isChecked : Boolean) -> Unit)? = null
+    var checkboxClickListener: ((todoId: String, isChecked: Boolean) -> Unit)? = null
     var infoClickListener: ((todoId: String) -> Unit)? = null
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodolistViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        return  TodolistViewHolder(
-                layoutInflater.inflate(
-                    R.layout.todoitem,
-                    parent,
-                    false
-                )
+        return TodolistViewHolder(
+            layoutInflater.inflate(
+                R.layout.todoitem,
+                parent,
+                false
             )
+        )
     }
 
     /**
      * Fix для правильного отображения элементов в RV
      */
-    override fun getItemId(position : Int) : Long {
+    override fun getItemId(position: Int): Long {
         return position.toLong()
     }
 
     /**
      * Fix для правильного отображения элементов в RV
      */
-    override fun getItemViewType(position : Int) : Int {
+    override fun getItemViewType(position: Int): Int {
         return position
     }
 

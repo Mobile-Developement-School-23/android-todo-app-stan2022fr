@@ -2,9 +2,12 @@ package com.happydroid.happytodo.data.network.model
 
 import com.google.gson.annotations.SerializedName
 
-data class TodoElementResponseNW(
+/**
+ * Represents the response network model for a todo element.
+ */
+data class TodoElementResponseNetwork(
     @SerializedName("revision") override val revision: Int?,
-    @SerializedName("element") val element: TodoItemNW?,
+    @SerializedName("element") val element: TodoItemNetwork?,
     @SerializedName("status") override val status: String?,
-) : ResponseNW
+) : ResponseNetwork
 

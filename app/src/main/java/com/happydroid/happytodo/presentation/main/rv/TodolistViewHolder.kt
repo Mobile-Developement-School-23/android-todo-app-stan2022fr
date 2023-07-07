@@ -1,4 +1,4 @@
-package com.happydroid.happytodo.view
+package com.happydroid.happytodo.presentation.main.rv
 
 import android.content.res.ColorStateList
 import android.graphics.Paint
@@ -29,11 +29,35 @@ class TodolistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     fun onBind(todoItem: TodoItem) {
 
-        // Обработака цвета и формата текста в зависимости от приоритета и статуса задачи
+        setOnCheckAction(todoItem)
+        setIconPriority(todoItem)
+
+        if (todoItem.deadline != null && !todoItem.isDone) {
+            dateTextView.text = dateFormatter.format(todoItem.deadline)
+            dateTextView.visibility = View.VISIBLE
+        }
+        todoTextView.text = todoItem.text
+        isDone.isChecked = todoItem.isDone
+    }
+
+    /**
+     * Обработака цвета и формата текста в зависимости от приоритета и статуса задачи
+     */
+    private fun setOnCheckAction(todoItem: TodoItem) {
         isDone.setOnCheckedChangeListener { buttonView, isChecked ->
             if (isChecked) {
-                isDone.buttonTintList = ColorStateList.valueOf(ContextCompat.getColor(itemView.context, R.color.color_green))
-                todoTextView.setTextColor(ContextCompat.getColor(itemView.context, R.color.label_tertiary))
+                isDone.buttonTintList = ColorStateList.valueOf(
+                    ContextCompat.getColor(
+                        itemView.context,
+                        R.color.color_green
+                    )
+                )
+                todoTextView.setTextColor(
+                    ContextCompat.getColor(
+                        itemView.context,
+                        R.color.label_tertiary
+                    )
+                )
                 todoTextView.paintFlags = todoTextView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 dateTextView.visibility = View.GONE
                 priority.visibility = View.GONE
@@ -46,7 +70,6 @@ class TodolistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
                             R.color.color_red
                         )
                     )
-
                 } else {
                     isDone.buttonTintList = ColorStateList.valueOf(
                         ContextCompat.getColor(
@@ -55,25 +78,31 @@ class TodolistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
                         )
                     )
                 }
-                todoTextView.setTextColor(ContextCompat.getColor(itemView.context, R.color.label_primary))
-                todoTextView.paintFlags = todoTextView.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
-                if (todoItem.deadline != null){
+                todoTextView.setTextColor(
+                    ContextCompat.getColor(
+                        itemView.context,
+                        R.color.label_primary
+                    )
+                )
+                todoTextView.paintFlags =
+                    todoTextView.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+                if (todoItem.deadline != null) {
                     dateTextView.visibility = View.VISIBLE
                 }
-                if (todoItem.priority != NORMAL  ){
+                if (todoItem.priority != NORMAL) {
                     priority.visibility = View.VISIBLE
                 }
             }
         }
+    }
 
-        // Иконка для приоритета задачи
+    private fun setIconPriority(todoItem: TodoItem) {
         when (todoItem.priority) {
             LOW -> {
                 val typedValue = TypedValue()
                 itemView.context.theme.resolveAttribute(R.attr.label_tertiary, typedValue, true)
                 val color = typedValue.data
                 priority.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-
                 priority.visibility = View.VISIBLE
                 priority.setImageResource(R.drawable.low_priority)
             }
@@ -85,17 +114,9 @@ class TodolistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
                 itemView.context.theme.resolveAttribute(R.attr.color_red, typedValue, true)
                 val color = typedValue.data
                 priority.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-
                 priority.visibility = View.VISIBLE
                 priority.setImageResource(R.drawable.high_priority)
-
             }
         }
-        if (todoItem.deadline != null && !todoItem.isDone) {
-            dateTextView.text = dateFormatter.format(todoItem.deadline)
-            dateTextView.visibility = View.VISIBLE
-        }
-        todoTextView.text = todoItem.text
-        isDone.isChecked = todoItem.isDone
     }
 }

@@ -9,6 +9,9 @@ import androidx.room.Update
 import com.happydroid.happytodo.data.model.TodoItem
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * Interface for accessing the todo item data access object.
+ */
 @Dao
 interface TodoItemDao {
     @Query("SELECT * FROM todo_items")

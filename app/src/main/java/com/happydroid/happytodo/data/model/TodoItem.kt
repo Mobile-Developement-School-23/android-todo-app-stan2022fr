@@ -5,10 +5,13 @@ import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.happydroid.happytodo.data.local.DateConverter
 import com.happydroid.happytodo.data.network.model.RevisionHolder
-import com.happydroid.happytodo.data.network.model.TodoElementRequestNW
-import com.happydroid.happytodo.data.network.model.TodoItemNW
+import com.happydroid.happytodo.data.network.model.TodoElementRequestNetwork
+import com.happydroid.happytodo.data.network.model.TodoItemNetwork
 import java.util.Date
 
+/**
+ * Represents a todo item.
+ */
 @Entity(tableName = "todo_items")
 @TypeConverters(DateConverter::class)
 data class TodoItem(
@@ -19,7 +22,7 @@ data class TodoItem(
     val isDone: Boolean,
     val createdDate: Date,
     val modifiedDate: Date?
-){
+) {
 
     enum class Priority(val value: String? = "basic") {
         NORMAL("basic"),
@@ -39,20 +42,20 @@ data class TodoItem(
     }
 }
 
-fun TodoItem.toTodoItemNW(): TodoItemNW {
-    return TodoItemNW(
+fun TodoItem.toTodoItemNetwork(): TodoItemNetwork {
+    return TodoItemNetwork(
         id = id,
         text = text,
         importance = priority.value,
         deadline = deadline,
         done = isDone,
         color = null,
-        changedAt = modifiedDate?: createdDate,
+        changedAt = modifiedDate ?: createdDate,
         createdAt = createdDate,
         last_updated_by = RevisionHolder.deviceId
     )
 }
 
-fun TodoItem.toTodoElementRequestNW(): TodoElementRequestNW {
-    return TodoElementRequestNW(this.toTodoItemNW())
+fun TodoItem.toTodoElementRequestNW(): TodoElementRequestNetwork {
+    return TodoElementRequestNetwork(this.toTodoItemNetwork())
 }

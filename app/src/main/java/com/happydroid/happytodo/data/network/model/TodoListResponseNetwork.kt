@@ -3,21 +3,24 @@ package com.happydroid.happytodo.data.network.model
 import com.google.gson.annotations.SerializedName
 import com.happydroid.happytodo.data.model.ErrorCode
 import com.happydroid.happytodo.data.model.TodoItem
-import com.happydroid.happytodo.data.model.TodoResult
+import com.happydroid.happytodo.data.model.TodoItemsResult
 import java.util.Date
 
-data class TodoListResponseNW(
+/**
+ * Represents the response network model for a list of todos.
+ */
+data class TodoListResponseNetwork(
     @SerializedName("status") override val status: String?,
-    @SerializedName("list") val list: List<TodoItemNW>?,
+    @SerializedName("list") val list: List<TodoItemNetwork>?,
     @SerializedName("revision") override val revision: Int?
-) : ResponseNW
+) : ResponseNetwork
 
-fun TodoListResponseNW.toTodoResult(errorMessages : List<ErrorCode>): TodoResult {
+fun TodoListResponseNetwork.toTodoItemsResult(errorMessages: List<ErrorCode>): TodoItemsResult {
     val todoItems: List<TodoItem> = this.list?.map { todoItemNW ->
         TodoItem(
             id = todoItemNW.id ?: "",
             text = todoItemNW.text ?: "",
-            priority = TodoItem.Priority.fromString(todoItemNW.importance) ,
+            priority = TodoItem.Priority.fromString(todoItemNW.importance),
             deadline = todoItemNW.deadline,
             isDone = todoItemNW.done ?: false,
             modifiedDate = todoItemNW.changedAt,
@@ -25,5 +28,5 @@ fun TodoListResponseNW.toTodoResult(errorMessages : List<ErrorCode>): TodoResult
         )
     } ?: emptyList()
 
-    return TodoResult(data = todoItems, errorMessages)
+    return TodoItemsResult(data = todoItems, errorMessages)
 }
