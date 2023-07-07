@@ -4,7 +4,7 @@ import com.happydroid.happytodo.data.model.TodoItem
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class HardCodedDataSource {
+class FakeDataSource {
     val items = mutableListOf<TodoItem>()
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
@@ -26,7 +26,8 @@ class HardCodedDataSource {
         items.add(TodoItem("15", "Закончить чтение новой книги", TodoItem.Priority.LOW, null, false, dateFormat.parse("13/06/2023")!!, null))
 
     }
-    fun loadTodoItems(): List<TodoItem> {
+    suspend fun loadTodoItems(): List<TodoItem> {
+//        delay(3000L)
         return items
     }
 

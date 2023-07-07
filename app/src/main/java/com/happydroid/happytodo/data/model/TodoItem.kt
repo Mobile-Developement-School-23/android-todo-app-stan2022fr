@@ -1,9 +1,18 @@
 package com.happydroid.happytodo.data.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.happydroid.happytodo.data.local.DateConverter
+import com.happydroid.happytodo.data.network.model.RevisionHolder
+import com.happydroid.happytodo.data.network.model.TodoElementRequestNW
+import com.happydroid.happytodo.data.network.model.TodoItemNW
 import java.util.Date
 
+@Entity(tableName = "todo_items")
+@TypeConverters(DateConverter::class)
 data class TodoItem(
-    val id: String,
+    @PrimaryKey val id: String,
     val text: String,
     val priority: Priority,
     val deadline: Date?,
@@ -12,19 +21,38 @@ data class TodoItem(
     val modifiedDate: Date?
 ){
 
-    enum class Priority {
-        NORMAL, LOW,  HIGH;
+    enum class Priority(val value: String? = "basic") {
+        NORMAL("basic"),
+        LOW("low"),
+        HIGH("important");
 
         companion object {
-            fun fromString(value: String): Priority {
+            fun fromString(value: String? = "basic"): Priority {
                 return when (value) {
-
-                    "@string/priority_none" -> NORMAL
-                    "@string/priority_low" -> LOW
-                    "@string/priority_high" -> HIGH
+                    "low" -> LOW
+                    "basic" -> NORMAL
+                    "important" -> HIGH
                     else -> NORMAL
                 }
             }
         }
     }
+}
+
+fun TodoItem.toTodoItemNW(): TodoItemNW {
+    return TodoItemNW(
+        id = id,
+        text = text,
+        importance = priority.value,
+        deadline = deadline,
+        done = isDone,
+        color = null,
+        changedAt = modifiedDate?: createdDate,
+        createdAt = createdDate,
+        last_updated_by = RevisionHolder.deviceId
+    )
+}
+
+fun TodoItem.toTodoElementRequestNW(): TodoElementRequestNW {
+    return TodoElementRequestNW(this.toTodoItemNW())
 }

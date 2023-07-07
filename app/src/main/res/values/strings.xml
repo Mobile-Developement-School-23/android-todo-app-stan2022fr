@@ -18,10 +18,21 @@
     <string name="priority_none">Нет</string>
     <string name="priority_low">Низкая</string>
     <string name="priority_high">Высокая</string>
+
     <string name="hint_what_todo">Что нужно сделать</string>
     <string name="button_save">СОХРАНИТЬ</string>
     <string name="alert_vide_text">Название задачи не должно быть пустым!</string>
     <string name="settings">Настройки</string>
+    <string name="text_done">"Выполнено — "</string>
+    <string name="load_from_fake_datasource">Данные загружены из FakeDataSource.</string>
+    <string name="load_from_local_datasource">Используются локальные данные.</string>
+    <string name="load_from_remote_datasource">Данные загружены с сервера.</string>
+    <string name="no_connection">Нет подключения к интернету.</string>
+    <string name="unknow_error">Неизвестная ошибка. Наверное, разработчику нужно оторвать руки ;)</string>
+    <string name="retry">Повторить</string>
+    <string name="error_401">Неверная авторизация.</string>
+    <string name="error_404">Такой элемент на сервере не найден.</string>
+    <string name="error_500">Ошибка сервера.</string>
 
 
 </resources>
