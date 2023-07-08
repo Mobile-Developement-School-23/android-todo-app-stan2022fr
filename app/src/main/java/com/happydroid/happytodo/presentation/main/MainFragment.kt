@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.happydroid.happytodo.R
-import com.happydroid.happytodo.ToDoApplication
 import com.happydroid.happytodo.data.model.ErrorCode
 import com.happydroid.happytodo.data.model.TodoItem
 import com.happydroid.happytodo.data.repository.TodoItemsRepository
@@ -203,7 +202,7 @@ class MainFragment : Fragment() {
     private fun onEditTodoItem(idTodoItem: String) {
         val addTodoFragment = AddTodoFragment()
         val fragmentManager =
-            (requireActivity().application as ToDoApplication).getFragmentManager()
+            requireActivity().supportFragmentManager
 
         val bundle = Bundle()
         bundle.putString("idTodoItem", idTodoItem)

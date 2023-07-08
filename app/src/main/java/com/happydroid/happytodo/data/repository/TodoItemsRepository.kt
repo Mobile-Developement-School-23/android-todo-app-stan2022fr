@@ -37,6 +37,7 @@ import kotlinx.coroutines.withContext
 import retrofit2.Response
 import java.net.UnknownHostException
 import java.util.Date
+import javax.inject.Inject
 
 
 private const val DELEAY_NOTIFICATION = 5000L
@@ -47,7 +48,8 @@ private const val DELEAY_NOTIFICATION = 5000L
 @Suppress("UNCHECKED_CAST")
 class TodoItemsRepository private constructor(application: Application) {
 
-    private val fakeDataSource: FakeDataSource = FakeDataSource()
+    @Inject
+    lateinit var fakeDataSource: FakeDataSource
     private val todoItemDao: TodoItemDao = LocalStorage.getDatabase(application).todoItems()
     private val apiRemote = TodoApiFactory.retrofitService
     private val workManager = WorkManager.getInstance(application)
