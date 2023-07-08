@@ -34,6 +34,7 @@ class AddTodoViewModel(private val todoItemsRepository: TodoItemsRepository) : V
                     deadline = deadline,
                     modifiedDate = Date()
                 )
+                newTodoItem?.let{todoItemsRepository.updateTodoItem(newTodoItem)}
             } else {
                 newTodoItem = TodoItem(
                     id = UUID.randomUUID().toString(),
@@ -44,8 +45,8 @@ class AddTodoViewModel(private val todoItemsRepository: TodoItemsRepository) : V
                     createdDate = Date(),
                     modifiedDate = Date()
                 )
+                todoItemsRepository.addTodoItem(newTodoItem)
             }
-            newTodoItem?.let { todoItemsRepository.addOrUpdateTodoItem(it) }
         }
     }
 

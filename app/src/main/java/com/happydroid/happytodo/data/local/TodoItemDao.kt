@@ -30,7 +30,7 @@ interface TodoItemDao {
     suspend fun addAll(todoItems: List<TodoItem>)
 
     @Update
-    suspend fun editTodoItem(todoItem: TodoItem)
+    suspend fun updateTodoItem(todoItem: TodoItem)
 
     @Delete
     suspend fun deleteTodoItem(todoItem: TodoItem)

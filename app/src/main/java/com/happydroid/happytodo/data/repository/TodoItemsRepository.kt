@@ -1,7 +1,15 @@
 package com.happydroid.happytodo.data.repository
 
 import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.util.Log
+import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
 import com.happydroid.happytodo.data.datasource.FakeDataSource
 import com.happydroid.happytodo.data.local.LocalStorage
 import com.happydroid.happytodo.data.local.TodoItemDao
@@ -17,6 +25,7 @@ import com.happydroid.happytodo.data.network.model.RevisionHolder
 import com.happydroid.happytodo.data.network.model.TodoListRequestNetwork
 import com.happydroid.happytodo.data.network.model.TodoListResponseNetwork
 import com.happydroid.happytodo.data.network.model.toTodoItemsResult
+import com.happydroid.happytodo.data.workers.SyncWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -26,9 +35,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Response
-import java.net.InetAddress
 import java.net.UnknownHostException
 import java.util.Date
+
 
 private const val DELEAY_NOTIFICATION = 5000L
 
@@ -41,6 +50,8 @@ class TodoItemsRepository private constructor(application: Application) {
     private val fakeDataSource: FakeDataSource = FakeDataSource()
     private val todoItemDao: TodoItemDao = LocalStorage.getDatabase(application).todoItems()
     private val apiRemote = TodoApiFactory.retrofitService
+    private val workManager = WorkManager.getInstance(application)
+    private val connectivityManager = application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private val _todoItemsResult = MutableStateFlow(TodoItemsResult())
     val todoItemsResult: StateFlow<TodoItemsResult> = _todoItemsResult
     private var attempt = 0
@@ -58,7 +69,7 @@ class TodoItemsRepository private constructor(application: Application) {
             }
             saveAllTodoItemsToRemote()
 
-            if (!isInternetAvailable()) {
+            if (!isOnline()) {
                 Log.i("HappyTodo", "No internet connection")
                 delay(DELEAY_NOTIFICATION)
                 val message = ErrorCode.NO_CONNECTION
@@ -73,12 +84,38 @@ class TodoItemsRepository private constructor(application: Application) {
         }
     }
 
-    private suspend fun saveAllTodoItemsToRemote() {
-        try {
-            val response = apiRemote.updateAll(
-                TodoListRequestNetwork(todoItemsResult.value.data.map { it.toTodoItemNetwork() })
+    private suspend fun syncOnConnection() {
+        val message = ErrorCode.NO_CONNECTION
+        val oldResult = todoItemsResult.value
+        val newErrorMessages = todoItemsResult.value.errorMessages.toMutableList().apply {
+            add(message)
+        }
+
+        _todoItemsResult.value = oldResult.copy(errorMessages = newErrorMessages)
+
+
+        val myWorkRequest = OneTimeWorkRequest.Builder(SyncWorker::class.java)
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
             )
-            handleResponse(response as Response<ResponseNetwork>)
+            .build()
+        workManager.enqueueUniqueWork("HappySyncWorker", ExistingWorkPolicy.REPLACE, myWorkRequest)
+    }
+
+    suspend fun saveAllTodoItemsToRemote() {
+        try {
+            if (isOnline()){
+                val response = apiRemote.updateAll(
+                    TodoListRequestNetwork(todoItemsResult.value.data.map { it.toTodoItemNetwork() })
+                )
+                handleResponse(response as Response<ResponseNetwork>)
+            }else{
+                syncOnConnection()
+            }
+        }catch (e: UnknownHostException){
+            syncOnConnection()
         } catch (e: Exception) {
             Log.e("TodoItemsRepository.saveAllTodoItemsToRemote()", "Exception: ${e.message}")
         }
@@ -113,8 +150,9 @@ class TodoItemsRepository private constructor(application: Application) {
                     message = ErrorCode.ERROR_500
                 } else if (errorCode == ErrorCode.ERROR_404) {
                     message = ErrorCode.ERROR_404
-                } else if (!isInternetAvailable()) {
+                } else if (!isOnline()) {
                     message = ErrorCode.NO_CONNECTION
+                    syncOnConnection()
                 } else {
                     message = ErrorCode.UNKNOW_ERROR
                 }
@@ -140,27 +178,35 @@ class TodoItemsRepository private constructor(application: Application) {
     suspend fun fetchFromRemoteApi() {
         withContext(Dispatchers.IO) {
             try {
-                val response = apiRemote.fetchAll()
-                handleResponse(response as Response<ResponseNetwork>)
+                if(isOnline()){
 
-                if (response.isSuccessful) {
-                    val todoListResponseNW: TodoListResponseNetwork? = response.body()
-                    val newErrorMessages =
-                        todoItemsResult.value.errorMessages.toMutableList().apply {
-                            add(ErrorCode.LOAD_FROM_REMOTE)
-                        }
+                    val response = apiRemote.fetchAll()
+                    handleResponse(response as Response<ResponseNetwork>)
 
-                    // Обновляем данные
-                    _todoItemsResult.value =
-                        todoListResponseNW?.toTodoItemsResult(newErrorMessages) ?: TodoItemsResult(
-                            emptyList(), listOf(ErrorCode.UNKNOW_ERROR)
-                        )
+                    if (response.isSuccessful) {
+                        val todoListResponseNW: TodoListResponseNetwork? = response.body()
+                        val newErrorMessages =
+                            todoItemsResult.value.errorMessages.toMutableList().apply {
+                                add(ErrorCode.LOAD_FROM_REMOTE)
+                            }
 
-                } else {
-                    // компилятор не дает удалить этот блок else
-                    // обработка в handleResponse()
+                        // Обновляем данные
+                        _todoItemsResult.value =
+                            todoListResponseNW?.toTodoItemsResult(newErrorMessages) ?: TodoItemsResult(
+                                emptyList(), listOf(ErrorCode.UNKNOW_ERROR)
+                            )
+                        todoItemDao.addAll(todoItemsResult.value.data)
+
+                    } else {
+                        // компилятор не дает удалить этот блок else
+                        // обработка в handleResponse()
+                    }
+                }else{
+                    syncOnConnection()
                 }
 
+            }catch (e: UnknownHostException){
+                syncOnConnection()
             } catch (e: Exception) {
                 Log.e("TodoItemsRepository.fetchFromRemote()", "Exception: ${e.message}")
             }
@@ -185,9 +231,14 @@ class TodoItemsRepository private constructor(application: Application) {
         withContext(Dispatchers.IO) {
             try {
                 todoItemDao.deleteById(idTodoItem)
-
-                val response = apiRemote.deleteItem(idTodoItem)
-                handleResponse(response as Response<ResponseNetwork>)
+                if (isOnline()) {
+                    val response = apiRemote.deleteItem(idTodoItem)
+                    handleResponse(response as Response<ResponseNetwork>)
+                }else{
+                    syncOnConnection()
+                }
+            }catch (e: UnknownHostException){
+                syncOnConnection()
             } catch (e: Exception) {
                 Log.e("TodoItemsRepository.deleteTodoItem()", "Exception: ${e.message}")
             }
@@ -213,62 +264,70 @@ class TodoItemsRepository private constructor(application: Application) {
             withContext(Dispatchers.IO) {
                 val newItem = getTodoItem(idTodoItem)
                 newItem?.let {
-                    todoItemDao.editTodoItem(newItem)
-                    val response = apiRemote.updateItem(idTodoItem, it.toTodoElementRequestNW())
-                    handleResponse(response as Response<ResponseNetwork>)
+                    todoItemDao.updateTodoItem(newItem)
+                    if (isOnline()) {
+                        val response = apiRemote.updateItem(idTodoItem, it.toTodoElementRequestNW())
+                        handleResponse(response as Response<ResponseNetwork>)
+                    }else{
+                        syncOnConnection()
+                    }
                 }
             }
+
+        }catch (e: UnknownHostException){
+                syncOnConnection()
         } catch (e: Exception) {
             Log.e("TodoItemsRepository.changeStatusTodoItem()", "Exception: ${e.message}")
         }
     }
 
-    suspend fun addOrUpdateTodoItem(todoItem: TodoItem) {
-        var isExisted = false
-        var response: Response<ResponseNetwork>
-
-        val newItems = withContext(Dispatchers.Default) {
-
-            val currentList = todoItemsResult.value.data.toMutableList()
-            val index = currentList.indexOfFirst { it.id == todoItem.id }
-            if (index != -1) {
-                // Элемент найден, перезаписываем его
-                currentList[index] = todoItem
-                isExisted = true
-            } else {
-                currentList.add(todoItem)
-            }
-            currentList.toList()
-        }
-        _todoItemsResult.value = TodoItemsResult(newItems)
+    suspend fun addTodoItem(todoItem: TodoItem) {
         try {
             withContext(Dispatchers.IO) {
-                if (isExisted) {
-                    todoItemDao.editTodoItem(todoItem)
-                    response = apiRemote.updateItem(
-                        todoItem.id,
-                        todoItem.toTodoElementRequestNW()
-                    ) as Response<ResponseNetwork>
-                } else {
-                    todoItemDao.addTodoItem(todoItem)
-                    response =
+                todoItemDao.addTodoItem(todoItem)
+                if (isOnline()) {
+                    val response =
                         apiRemote.addItem(todoItem.toTodoElementRequestNW()) as Response<ResponseNetwork>
+                    handleResponse(response)
+                }else{
+                    syncOnConnection()
                 }
-                handleResponse(response)
             }
-        } catch (e: Exception) {
+        }
+        catch (e: UnknownHostException){
+            syncOnConnection()
+        }
+        catch (e: Exception) {
             Log.e("TodoItemsRepository.addOrUpdateTodoItem()", "Exception: ${e.message}")
         }
     }
 
-    private fun isInternetAvailable(): Boolean {
-        return try {
-            val address = InetAddress.getByName("ya.ru")
-            !address.equals("")
-        } catch (e: UnknownHostException) {
-            Log.e("TodoItemsRepository.isInternetAvailable()", "Exception: ${e.message}")
-            false
+    suspend fun updateTodoItem(todoItem: TodoItem) {
+        try {
+            withContext(Dispatchers.IO) {
+                todoItemDao.updateTodoItem(todoItem)
+                if (isOnline()) {
+                    val response =
+                        apiRemote.updateItem(todoItem.id, todoItem.toTodoElementRequestNW()) as Response<ResponseNetwork>
+                    handleResponse(response)
+                }else{
+                    syncOnConnection()
+                }
+            }
         }
+        catch (e: UnknownHostException){
+            syncOnConnection()
+        }
+        catch (e: Exception) {
+            Log.e("TodoItemsRepository.addOrUpdateTodoItem()", "Exception: ${e.message}")
+        }
+    }
+
+
+    private fun isOnline(): Boolean {
+        val netInfo = connectivityManager.activeNetworkInfo
+        val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
+        return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
     }
 
 
