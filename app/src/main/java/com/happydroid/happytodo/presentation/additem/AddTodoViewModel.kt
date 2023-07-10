@@ -9,11 +9,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.UUID
+import javax.inject.Inject
 
 /**
  * This class is responsible for handling the logic related to editing or adding a new todo item.
  */
-class AddTodoViewModel(private val todoItemsRepository: TodoItemsRepository) : ViewModel() {
+class AddTodoViewModel @Inject constructor(private val todoItemsRepository: TodoItemsRepository) : ViewModel() {
 
     private val customScope = CoroutineScope(Dispatchers.IO)
 

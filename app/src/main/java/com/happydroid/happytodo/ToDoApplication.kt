@@ -8,6 +8,9 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.happydroid.happytodo.data.workers.DataUpdateWorker
+import com.happydroid.happytodo.di.AppComponent
+import com.happydroid.happytodo.di.AppModule
+import com.happydroid.happytodo.di.DaggerAppComponent
 import java.util.concurrent.TimeUnit
 
 private const val UPDATE_EVERY_HOURS = 8L
@@ -17,6 +20,11 @@ private const val UPDATE_EVERY_HOURS = 8L
  * as long as application lives.
  */
 class ToDoApplication : Application() {
+    val appComponent: AppComponent by lazy {
+        DaggerAppComponent.builder()
+            .appModule(AppModule(this))
+            .build()
+    }
 
     private var fragmentManager: FragmentManager? = null
 

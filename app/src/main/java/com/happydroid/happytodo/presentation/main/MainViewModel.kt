@@ -12,11 +12,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * This class is responsible for managing the main view of the application and interacting with the todo items repository.
  */
-class MainViewModel(private val todoItemsRepository: TodoItemsRepository) : ViewModel() {
+class MainViewModel @Inject constructor(private val todoItemsRepository: TodoItemsRepository) : ViewModel() {
     private val _todoItemsResult = MutableStateFlow(TodoItemsResult())
     val todoItemsResult: StateFlow<TodoItemsResult> = _todoItemsResult
     var showOnlyUnfinishedItems: Boolean = false

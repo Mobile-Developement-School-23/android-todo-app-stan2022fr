@@ -3,11 +3,12 @@ package com.happydroid.happytodo.data.datasource
 import com.happydroid.happytodo.data.model.TodoItem
 import java.text.SimpleDateFormat
 import java.util.Locale
+import javax.inject.Inject
 
 /**
  * This class represents a fake data source for testing purposes.
  */
-class FakeDataSource {
+class FakeDataSource @Inject constructor() {
     val items = mutableListOf<TodoItem>()
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 

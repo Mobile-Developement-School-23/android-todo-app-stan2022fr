@@ -1,5 +1,6 @@
 package com.happydroid.happytodo.presentation.main
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -11,7 +12,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,32 +19,25 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.happydroid.happytodo.R
+import com.happydroid.happytodo.ToDoApplication
 import com.happydroid.happytodo.data.model.ErrorCode
 import com.happydroid.happytodo.data.model.TodoItem
-import com.happydroid.happytodo.data.repository.TodoItemsRepository
 import com.happydroid.happytodo.presentation.additem.AddTodoFragment
 import com.happydroid.happytodo.presentation.main.rv.TodoItemOffsetItemDecoration
 import com.happydroid.happytodo.presentation.main.rv.TodolistAdapter
 import com.happydroid.happytodo.presentation.settings.SettingsFragment
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * This class represents the main fragment of the application.
  */
 class MainFragment : Fragment() {
 
-    private val mainViewModel: MainViewModel by viewModels {
-        object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val repository = TodoItemsRepository.getInstance(requireActivity().application)
-                if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-                    return MainViewModel(repository) as T
-                }
-                throw IllegalArgumentException("Unknown ViewModel class")
-            }
-        }
-    }
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    private val mainViewModel: MainViewModel by viewModels { viewModelFactory }
 
     private val todolistAdapter: TodolistAdapter = TodolistAdapter()
     private lateinit var doneTextView: TextView
@@ -57,6 +50,11 @@ class MainFragment : Fragment() {
         setHasOptionsMenu(true)
 
         return inflater.inflate(R.layout.fragment_main, container, false)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (requireActivity().application as ToDoApplication).appComponent.mainFragmentComponent().inject(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -208,7 +206,7 @@ class MainFragment : Fragment() {
         bundle.putString("idTodoItem", idTodoItem)
         addTodoFragment.arguments = bundle
 
-        fragmentManager?.beginTransaction()?.apply {
+        fragmentManager.beginTransaction().apply {
             replace(R.id.container, addTodoFragment)
             addToBackStack(null)
             commit()

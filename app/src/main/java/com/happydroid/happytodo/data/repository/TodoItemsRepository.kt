@@ -12,7 +12,6 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.happydroid.happytodo.data.datasource.FakeDataSource
 import com.happydroid.happytodo.data.local.LocalStorage
-import com.happydroid.happytodo.data.local.TodoItemDao
 import com.happydroid.happytodo.data.model.ErrorCode
 import com.happydroid.happytodo.data.model.Mapper
 import com.happydroid.happytodo.data.model.TodoItem
@@ -38,6 +37,7 @@ import retrofit2.Response
 import java.net.UnknownHostException
 import java.util.Date
 import javax.inject.Inject
+import javax.inject.Singleton
 
 
 private const val DELEAY_NOTIFICATION = 5000L
@@ -46,12 +46,11 @@ private const val DELEAY_NOTIFICATION = 5000L
  * This class is responsible for managing the persistence and retrieval of todo items.
  */
 @Suppress("UNCHECKED_CAST")
-class TodoItemsRepository private constructor(application: Application) {
+@Singleton
+class TodoItemsRepository @Inject constructor(application: Application, private val fakeDataSource: FakeDataSource, localStorage: LocalStorage, todoApiFactory : TodoApiFactory) {
 
-    @Inject
-    lateinit var fakeDataSource: FakeDataSource
-    private val todoItemDao: TodoItemDao = LocalStorage.getDatabase(application).todoItems()
-    private val apiRemote = TodoApiFactory.retrofitService
+    private val todoItemDao = localStorage.todoItems()
+    private val apiRemote = todoApiFactory.retrofitService
     private val workManager = WorkManager.getInstance(application)
     private val connectivityManager = application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private val _todoItemsResult = MutableStateFlow(TodoItemsResult())
@@ -327,20 +326,19 @@ class TodoItemsRepository private constructor(application: Application) {
 
 
     private fun isOnline(): Boolean {
-        val netInfo = connectivityManager.activeNetworkInfo
         val capabilities = connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
         return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
     }
 
 
-    companion object {
-        @Volatile
-        private var instance: TodoItemsRepository? = null
-
-        fun getInstance(application: Application): TodoItemsRepository {
-            return instance ?: synchronized(this) {
-                instance ?: TodoItemsRepository(application).also { instance = it }
-            }
-        }
-    }
+//    companion object {
+//        @Volatile
+//        private var instance: TodoItemsRepository? = null
+//        @Inject
+//        fun getInstance(application: Application): TodoItemsRepository {
+//            return instance ?: synchronized(this) {
+//                instance ?: TodoItemsRepository(application).also { instance = it }
+//            }
+//        }
+//    }
 }

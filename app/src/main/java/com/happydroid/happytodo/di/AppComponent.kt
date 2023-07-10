@@ -1,18 +1,16 @@
 package com.happydroid.happytodo.di
 
-import com.happydroid.happytodo.data.network.TodoApiFactory
 import com.happydroid.happytodo.data.repository.TodoItemsRepository
-import com.happydroid.happytodo.presentation.additem.AddTodoFragment
-import com.happydroid.happytodo.presentation.main.MainFragment
 import dagger.Component
+import javax.inject.Singleton
 
-@Component(modules = [DataSourceModule::class])
+@Singleton
+@Component(modules = [AppModule::class, DataSourceModule::class, NetworkModule::class])
 interface AppComponent {
+    fun mainFragmentComponent(): MainFragmentComponent
 
-    fun inject(repository: TodoItemsRepository)
-    fun inject(fragment: MainFragment)
-    fun inject(fragment: AddTodoFragment)
-    fun inject(todoApiFactory: TodoApiFactory)
+    fun addTodoFragmentComponent(): AddTodoFragmentComponent
 
+    fun todoItemsRepository(): TodoItemsRepository
 }
 

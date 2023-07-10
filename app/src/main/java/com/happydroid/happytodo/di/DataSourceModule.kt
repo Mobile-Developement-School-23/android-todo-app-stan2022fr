@@ -1,33 +1,24 @@
 package com.happydroid.happytodo.di
 
 import android.app.Application
-import com.happydroid.happytodo.data.datasource.FakeDataSource
+import androidx.room.Room
 import com.happydroid.happytodo.data.local.LocalStorage
-import com.happydroid.happytodo.data.local.TodoItemDao
-import com.happydroid.happytodo.data.repository.TodoItemsRepository
 import dagger.Module
 import dagger.Provides
+import javax.inject.Singleton
 
 @Module
-class DataSourceModule(private val application: Application) {
+object DataSourceModule {
 
+    @Singleton
     @Provides
-    fun provideTodoItemsRepository(application: Application): TodoItemsRepository {
-        return TodoItemsRepository.getInstance(application)
+    fun provideLocalStorage(application: Application): LocalStorage {
+        return Room.databaseBuilder(
+            application,
+            LocalStorage::class.java,
+            "todo_database"
+        ).build()
     }
-
-    @Provides
-    fun provideFakeDataSource(): FakeDataSource {
-        return FakeDataSource()
-    }
-
-    @Provides
-    fun provideTodoItemDao(): TodoItemDao {
-        return LocalStorage.getDatabase(application).todoItems()
-    }
-
-
-
 
 
 }

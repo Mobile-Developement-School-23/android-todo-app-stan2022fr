@@ -1,11 +1,10 @@
 package com.happydroid.happytodo.data.workers
 
-import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.happydroid.happytodo.data.repository.TodoItemsRepository
+import com.happydroid.happytodo.ToDoApplication
 import kotlinx.coroutines.runBlocking
 
 /**
@@ -16,7 +15,7 @@ class DataUpdateWorker(appContext: Context, workerParams: WorkerParameters) :
 
     override fun doWork(): Result {
         try {
-            val todoItemsRepository = TodoItemsRepository.getInstance(applicationContext as Application)
+            val todoItemsRepository = (applicationContext as ToDoApplication).appComponent.todoItemsRepository()
             runBlocking {
                 todoItemsRepository.fetchFromRemoteApi()
             }

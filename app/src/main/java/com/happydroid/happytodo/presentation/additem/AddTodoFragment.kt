@@ -2,6 +2,7 @@ package com.happydroid.happytodo.presentation.additem
 
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.view.LayoutInflater
@@ -17,35 +18,27 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.happydroid.happytodo.R
+import com.happydroid.happytodo.ToDoApplication
 import com.happydroid.happytodo.data.model.TodoItem
-import com.happydroid.happytodo.data.repository.TodoItemsRepository
 import kotlinx.coroutines.runBlocking
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
 /**
  * This class represents a fragment that allows users to edit or add a new todo item.
  */
 class AddTodoFragment : Fragment() {
 
-    private val addTodoViewModel: AddTodoViewModel by viewModels {
-        object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val repository = TodoItemsRepository.getInstance(requireActivity().application)
-                if (modelClass.isAssignableFrom(AddTodoViewModel::class.java)) {
-                    return AddTodoViewModel(repository) as T
-                }
-                throw IllegalArgumentException("Unknown ViewModel class")
-            }
-        }
-    }
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    private val addTodoViewModel: AddTodoViewModel by viewModels { viewModelFactory }
 
     private var todoItem: TodoItem? = null
     private val dateFormatter = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
@@ -58,6 +51,10 @@ class AddTodoFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_add_todo, container, false)
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (requireActivity().application as ToDoApplication).appComponent.addTodoFragmentComponent().inject(this)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
