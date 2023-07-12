@@ -1,16 +1,17 @@
 package com.happydroid.happytodo.di
 
-import com.happydroid.happytodo.data.repository.TodoItemsRepository
 import dagger.Component
-import javax.inject.Singleton
+import javax.inject.Scope
 
-@Singleton
+@Scope
+annotation class AppScope
+
+@AppScope
 @Component(modules = [AppModule::class, DataSourceModule::class, NetworkModule::class])
 interface AppComponent {
     fun mainFragmentComponent(): MainFragmentComponent
 
     fun addTodoFragmentComponent(): AddTodoFragmentComponent
 
-    fun todoItemsRepository(): TodoItemsRepository
 }
 

@@ -4,18 +4,18 @@ import android.content.Context
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.happydroid.happytodo.ToDoApplication
+import com.happydroid.happytodo.data.repository.TodoItemsRepository
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
 /**
  * A worker class responsible for performing periodic data updates in the background.
  */
-class DataUpdateWorker(appContext: Context, workerParams: WorkerParameters) :
+class DataUpdateWorker @Inject constructor(appContext: Context, workerParams: WorkerParameters, private val todoItemsRepository: TodoItemsRepository) :
     Worker(appContext, workerParams) {
 
     override fun doWork(): Result {
         try {
-            val todoItemsRepository = (applicationContext as ToDoApplication).appComponent.todoItemsRepository()
             runBlocking {
                 todoItemsRepository.fetchFromRemoteApi()
             }

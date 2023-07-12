@@ -11,39 +11,39 @@ import dagger.Provides
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.util.Date
-import javax.inject.Singleton
 @Module
-class NetworkModule {
+interface NetworkModule {
+    companion object{
+        @Provides
+        @AppScope
+        fun provideOkHttpClient(): OkHttpClient {
+            val authInterceptor = AuthInterceptor()
+            val revisionInterceptor = RevisionInterceptor()
+            val httpLoggingInterceptor =
+                HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
+            httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+            return OkHttpClient.Builder()
+                .addInterceptor(httpLoggingInterceptor)
+                .addNetworkInterceptor(authInterceptor)
+                .addNetworkInterceptor(revisionInterceptor)
+                .build()
+        }
 
-    @Provides
-    @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
-        val authInterceptor = AuthInterceptor()
-        val revisionInterceptor = RevisionInterceptor()
-        val httpLoggingInterceptor =
-            HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
-        httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-        return OkHttpClient.Builder()
-            .addInterceptor(httpLoggingInterceptor)
-            .addNetworkInterceptor(authInterceptor)
-            .addNetworkInterceptor(revisionInterceptor)
-            .build()
-    }
+        @Provides
+        @AppScope
+        fun provideGson(): Gson {
+            return GsonBuilder()
+                .registerTypeAdapter(Date::class.java, DateTypeAdapter())
+                .create()
+        }
 
-    @Provides
-    @Singleton
-    fun provideGson(): Gson {
-        return GsonBuilder()
-            .registerTypeAdapter(Date::class.java, DateTypeAdapter())
-            .create()
-    }
-
-    @Provides
-    @Singleton
-    fun provideTodoApiFactory(okHttpClient: OkHttpClient, gson: Gson): TodoApiFactory {
-        return object : TodoApiFactory() {
-            override val okHttpClient = okHttpClient
-            override val gson = gson
+        @Provides
+        @AppScope
+        fun provideTodoApiFactory(okHttpClient: OkHttpClient, gson: Gson): TodoApiFactory {
+            return object : TodoApiFactory() {
+                override val okHttpClient = okHttpClient
+                override val gson = gson
+            }
         }
     }
 }

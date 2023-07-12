@@ -25,6 +25,7 @@ import com.happydroid.happytodo.data.network.model.TodoListRequestNetwork
 import com.happydroid.happytodo.data.network.model.TodoListResponseNetwork
 import com.happydroid.happytodo.data.network.model.toTodoItemsResult
 import com.happydroid.happytodo.data.workers.SyncWorker
+import com.happydroid.happytodo.di.AppScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -37,7 +38,6 @@ import retrofit2.Response
 import java.net.UnknownHostException
 import java.util.Date
 import javax.inject.Inject
-import javax.inject.Singleton
 
 
 private const val DELEAY_NOTIFICATION = 5000L
@@ -46,7 +46,7 @@ private const val DELEAY_NOTIFICATION = 5000L
  * This class is responsible for managing the persistence and retrieval of todo items.
  */
 @Suppress("UNCHECKED_CAST")
-@Singleton
+@AppScope
 class TodoItemsRepository @Inject constructor(application: Application, private val fakeDataSource: FakeDataSource, localStorage: LocalStorage, todoApiFactory : TodoApiFactory) {
 
     private val todoItemDao = localStorage.todoItems()

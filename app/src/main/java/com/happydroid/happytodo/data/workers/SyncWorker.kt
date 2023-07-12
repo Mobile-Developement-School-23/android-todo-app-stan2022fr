@@ -4,19 +4,18 @@ import android.content.Context
 import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.happydroid.happytodo.ToDoApplication
+import com.happydroid.happytodo.data.repository.TodoItemsRepository
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
 /**
  * A worker class responsible for updating data on the server when the device is connected.
  */
-class SyncWorker(appContext: Context, workerParams: WorkerParameters) :
+class SyncWorker @Inject constructor(appContext: Context, workerParams: WorkerParameters, private val todoItemsRepository: TodoItemsRepository) :
     Worker(appContext, workerParams) {
 
     override fun doWork(): Result {
         try {
-            val todoItemsRepository =
-                (applicationContext as ToDoApplication).appComponent.todoItemsRepository()
             runBlocking {
                 todoItemsRepository.saveAllTodoItemsToRemote()
                 todoItemsRepository.fetchFromRemoteApi()

@@ -10,18 +10,21 @@ import dagger.Provides
 
 
 @Module
-class ViewModelFactoryModule {
-    @Provides
-    fun provideMainViewModelFactory(repository: TodoItemsRepository): ViewModelProvider.Factory {
-        return object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-                    return MainViewModel(repository) as T
-                }else if (modelClass.isAssignableFrom(AddTodoViewModel::class.java)) {
-                    return AddTodoViewModel(repository) as T
+interface ViewModelFactoryModule {
+    companion object{
+        @FragmentScope
+        @Provides
+        fun provideViewModelFactory(repository: TodoItemsRepository): ViewModelProvider.Factory {
+            return object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+                        return MainViewModel(repository) as T
+                    }else if (modelClass.isAssignableFrom(AddTodoViewModel::class.java)) {
+                        return AddTodoViewModel(repository) as T
+                    }
+                    throw IllegalArgumentException("Unknown ViewModel class")
                 }
-                throw IllegalArgumentException("Unknown ViewModel class")
             }
         }
     }
