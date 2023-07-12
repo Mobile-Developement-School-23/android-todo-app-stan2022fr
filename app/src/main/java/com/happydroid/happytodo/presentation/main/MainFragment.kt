@@ -134,10 +134,11 @@ class MainFragment : Fragment() {
     }
 
     private fun updateAdapterData(todoItems: List<TodoItem>) {
+        val sortedList = todoItems.sortedWith(compareBy { it.createdDate })
         if (mainViewModel.showOnlyUnfinishedItems) {
-            todolistAdapter.submitList(todoItems.filter { it.isDone == false })
+            todolistAdapter.submitList(sortedList.filter { it.isDone == false })
         } else {
-            todolistAdapter.submitList(todoItems)
+            todolistAdapter.submitList(sortedList)
         }
         updateDoneText()
     }
