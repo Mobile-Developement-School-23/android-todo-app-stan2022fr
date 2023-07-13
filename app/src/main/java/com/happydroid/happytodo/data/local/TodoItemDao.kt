@@ -9,6 +9,9 @@ import androidx.room.Update
 import com.happydroid.happytodo.data.model.TodoItem
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * Interface for accessing the todo item data access object.
+ */
 @Dao
 interface TodoItemDao {
     @Query("SELECT * FROM todo_items")
@@ -27,7 +30,7 @@ interface TodoItemDao {
     suspend fun addAll(todoItems: List<TodoItem>)
 
     @Update
-    suspend fun editTodoItem(todoItem: TodoItem)
+    suspend fun updateTodoItem(todoItem: TodoItem)
 
     @Delete
     suspend fun deleteTodoItem(todoItem: TodoItem)

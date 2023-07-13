@@ -3,7 +3,10 @@ package com.happydroid.happytodo.data.network.model
 import com.google.gson.annotations.SerializedName
 import java.util.Date
 
-data class TodoItemNW(
+/**
+ * Represents the network model for a todo item.
+ */
+data class TodoItemNetwork(
     @SerializedName("id") val id: String?,
     @SerializedName("text") val text: String?,
     @SerializedName("importance") val importance: String?,

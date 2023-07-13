@@ -3,6 +3,9 @@ package com.happydroid.happytodo.data.local
 import androidx.room.TypeConverter
 import java.util.Date
 
+/**
+ * This class provides utility methods for date conversion.
+ */
 class DateConverter {
     @TypeConverter
     fun toDate(timestamp: Long?): Date? {

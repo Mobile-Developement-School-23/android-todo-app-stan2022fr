@@ -1,5 +1,6 @@
-package com.happydroid.happytodo.view
+package com.happydroid.happytodo.presentation.main
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -11,7 +12,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,31 +22,25 @@ import com.happydroid.happytodo.R
 import com.happydroid.happytodo.ToDoApplication
 import com.happydroid.happytodo.data.model.ErrorCode
 import com.happydroid.happytodo.data.model.TodoItem
-import com.happydroid.happytodo.data.repository.TodoItemsRepository
-import com.happydroid.happytodo.viewmodel.MainViewModel
+import com.happydroid.happytodo.presentation.additem.AddTodoFragment
+import com.happydroid.happytodo.presentation.main.rv.TodoItemOffsetItemDecoration
+import com.happydroid.happytodo.presentation.main.rv.TodolistAdapter
+import com.happydroid.happytodo.presentation.settings.SettingsFragment
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+/**
+ * This class represents the main fragment of the application.
+ */
 class MainFragment : Fragment() {
 
-    companion object {
-        fun newInstance() = MainFragment()
-    }
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
 
-    private val mainViewModel: MainViewModel by viewModels {
-        object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val repository = TodoItemsRepository.getInstance(requireActivity().application)
-                if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-                    return MainViewModel(repository) as T
-                }
-                throw IllegalArgumentException("Unknown ViewModel class")
-            }
-        }
-    }
+    private val mainViewModel: MainViewModel by viewModels { viewModelFactory }
 
     private val todolistAdapter: TodolistAdapter = TodolistAdapter()
-    private lateinit var doneTextView : TextView
+    private lateinit var doneTextView: TextView
 
 
     override fun onCreateView(
@@ -58,8 +52,16 @@ class MainFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_main, container, false)
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        (requireActivity().application as ToDoApplication).appComponent.mainFragmentComponent().inject(this)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        mainViewModel.startObservingLifecycle(viewLifecycleOwner.lifecycle)
+
         doneTextView = view.findViewById(R.id.title_done_number)
 
         val todolistRecyclerView: RecyclerView = view.findViewById(R.id.todolist)
@@ -69,24 +71,17 @@ class MainFragment : Fragment() {
             mainViewModel.todoItemsResult.collect { todoItemsResult ->
                 updateAdapterData(todoItemsResult.data)
 
-                if (todoItemsResult.errorMessages.isNotEmpty()){
+                if (todoItemsResult.errorMessages.isNotEmpty()) {
                     showMessage(view, todoItemsResult.errorMessages[0])
                 }
             }
         }
 
-        // Фильтр выполненных задач
-        val finishedItemsSwitchIcon  = view.findViewById<ImageView>(R.id.switchIconImageView)
-        finishedItemsSwitchIcon.setOnClickListener {
-            if (mainViewModel.showOnlyUnfinishedItems){
-                finishedItemsSwitchIcon.setImageResource(R.drawable.visibility)
-            }else{
-                finishedItemsSwitchIcon.setImageResource(R.drawable.visibility_off)
-            }
-            mainViewModel.showOnlyUnfinishedItems = !mainViewModel.showOnlyUnfinishedItems
-            updateAdapterData(mainViewModel.todoItemsResult.value.data)
-        }
+        addFinishedItemSwitchIcon(view)
+        addFloatingAddTaskButton(view)
+    }
 
+    private fun addFloatingAddTaskButton(view: View) {
         val fabAddTask = view.findViewById<FloatingActionButton>(R.id.fabAddTask)
         fabAddTask.setOnClickListener {
             // запускаем fragment для добавления задачи
@@ -99,13 +94,30 @@ class MainFragment : Fragment() {
         }
     }
 
+    private fun addFinishedItemSwitchIcon(view: View) {
+        val finishedItemsSwitchIcon = view.findViewById<ImageView>(R.id.switchIconImageView)
+        finishedItemsSwitchIcon.setOnClickListener {
+            if (mainViewModel.showOnlyUnfinishedItems) {
+                finishedItemsSwitchIcon.setImageResource(R.drawable.visibility)
+            } else {
+                finishedItemsSwitchIcon.setImageResource(R.drawable.visibility_off)
+            }
+            mainViewModel.showOnlyUnfinishedItems = !mainViewModel.showOnlyUnfinishedItems
+            updateAdapterData(mainViewModel.todoItemsResult.value.data)
+        }
+    }
+
     private fun showMessage(view: View, errorCode: ErrorCode) {
         val errorMessagesText = getString(errorCode.stringResId)
         val retryMessageText = getString(R.string.retry)
-        val snackbar = Snackbar.make(view.findViewById(R.id.mainCoordinatorLayout), errorMessagesText, Snackbar.LENGTH_LONG)
+        val snackbar = Snackbar.make(
+            view.findViewById(R.id.mainCoordinatorLayout),
+            errorMessagesText,
+            Snackbar.LENGTH_LONG
+        )
 
         // Кнопка повтор
-        if (errorCode == ErrorCode.NO_CONNECTION){
+        if (errorCode == ErrorCode.NO_CONNECTION) {
             snackbar.setAction(retryMessageText) {
                 mainViewModel.fetchFromRemote()
             }
@@ -122,21 +134,23 @@ class MainFragment : Fragment() {
     }
 
     private fun updateAdapterData(todoItems: List<TodoItem>) {
+        val sortedList = todoItems.sortedWith(compareBy { it.createdDate })
         if (mainViewModel.showOnlyUnfinishedItems) {
-            todolistAdapter.submitList(todoItems.filter { it.isDone == false })
+            todolistAdapter.submitList(sortedList.filter { it.isDone == false })
         } else {
-            todolistAdapter.submitList(todoItems)
+            todolistAdapter.submitList(sortedList)
         }
-        updateDoneText()    // отображение количества выполненнных задач
+        updateDoneText()
     }
 
     fun updateDoneText() {
-        val textDone = getString(R.string.text_done) + mainViewModel.todoItemsResult.value.data.filter { it.isDone }.size.toString()
+        val textDone =
+            getString(R.string.text_done) + mainViewModel.todoItemsResult.value.data.filter { it.isDone }.size.toString()
         doneTextView.text = textDone
     }
 
     /**
-     * Иконка для настроек
+     * Иконка для запуска фрагмента настроек
      */
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.menu_main, menu)
@@ -155,17 +169,22 @@ class MainFragment : Fragment() {
                     .commit()
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
 
     private fun setRecyclerView(todolistRecyclerView: RecyclerView) {
-        val layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        val layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
         todolistRecyclerView.adapter = todolistAdapter
         todolistRecyclerView.layoutManager = layoutManager
         todolistRecyclerView.addItemDecoration(
-            TodoItemOffsetItemDecoration(bottomOffset = resources.getDimensionPixelOffset(
-                R.dimen.bottomOffset_ItemDecoration))
+            TodoItemOffsetItemDecoration(
+                bottomOffset = resources.getDimensionPixelOffset(
+                    R.dimen.bottomOffset_ItemDecoration
+                )
+            )
         )
 
         // Смена статуса задачи
@@ -181,16 +200,21 @@ class MainFragment : Fragment() {
 
     private fun onEditTodoItem(idTodoItem: String) {
         val addTodoFragment = AddTodoFragment()
-        val fragmentManager = (requireActivity().application as ToDoApplication).getFragmentManager()
-        // Создаем Bundle и добавляем данные
-        val bundle  = Bundle()
+        val fragmentManager =
+            requireActivity().supportFragmentManager
+
+        val bundle = Bundle()
         bundle.putString("idTodoItem", idTodoItem)
         addTodoFragment.arguments = bundle
 
-        fragmentManager?.beginTransaction()?.apply {
+        fragmentManager.beginTransaction().apply {
             replace(R.id.container, addTodoFragment)
             addToBackStack(null)
             commit()
         }
+    }
+
+    companion object {
+        fun newInstance() = MainFragment()
     }
 }

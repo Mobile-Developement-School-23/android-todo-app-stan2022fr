@@ -10,13 +10,24 @@ import com.google.gson.JsonSerializer
 import java.lang.reflect.Type
 import java.util.Date
 
+/**
+ * This class provides serialization and deserialization logic for dates.
+ */
 class DateTypeAdapter : JsonSerializer<Date>, JsonDeserializer<Date> {
-    override fun serialize(src: Date?, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement {
+    override fun serialize(
+        src: Date?,
+        typeOfSrc: Type?,
+        context: JsonSerializationContext?
+    ): JsonElement {
         return JsonPrimitive(src?.time)
     }
 
     @Throws(JsonParseException::class)
-    override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): Date? {
+    override fun deserialize(
+        json: JsonElement?,
+        typeOfT: Type?,
+        context: JsonDeserializationContext?
+    ): Date? {
         return if (json != null && json.isJsonPrimitive && json.asJsonPrimitive.isNumber) {
             Date(json.asJsonPrimitive.asLong)
         } else {
