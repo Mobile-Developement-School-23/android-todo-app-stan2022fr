@@ -5,7 +5,7 @@
     <string name="messages_choose_theme">Выбор темы</string>
 
     <!-- Messages Preferences -->
-    <string name="notification_title">Присылать уведомления за…</string>
+    <string name="settings_notification_title">Присылать уведомления за…</string>
     <string name="dark_theme_title">Тёмная тема</string>
 
     <string name="notification_1day">1 день</string>
@@ -33,6 +33,18 @@
     <string name="error_401">Неверная авторизация.</string>
     <string name="error_404">Такой элемент на сервере не найден.</string>
     <string name="error_500">Ошибка сервера.</string>
+    <string name="chanel_title">Напоминания</string>
+    <string name="chanel_description">Напоминания для важных дел</string>
+    <string name="message_dialog_permition1">Уведомления для этого приложения отключены. Пожалуйста, включите их в настройках \"Категории уведомлений\".</string>
+    <string name="message_dialog_permition2">Требуется разрешение для отображения напоминаний о сроках выполнения задач.</string>
+    <string name="message_no_notify">Напоминания не будут отображаться.</string>
+    <string name="cancel">Отмена</string>
+    <string name="allow">Разрешить</string>
+    <string name="open_settings">Открыть настройки</string>
+    <string name="notification_title">Нужно сделать сегодня</string>
+    <string name="suffix_priority_low">" (Неважно):"</string>
+    <string name="suffix_priority_high">" (Важно!!):"</string>
+    <string name="suffix_priority_default">:</string>
 
 
 </resources>

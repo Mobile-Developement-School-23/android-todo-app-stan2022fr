@@ -9,7 +9,7 @@
     <PreferenceCategory app:title="@string/messages_notification">
         <ListPreference
             app:key="notification"
-            app:title="@string/notification_title"
+            app:title="@string/settings_notification_title"
             app:entries="@array/notification_entries"
             app:entryValues="@array/notification_values"
             app:defaultValue="notify_1day"

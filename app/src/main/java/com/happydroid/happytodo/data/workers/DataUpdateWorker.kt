@@ -5,14 +5,18 @@ import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.happydroid.happytodo.data.repository.TodoItemsRepository
+import dagger.assisted.AssistedFactory
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 /**
  * A worker class responsible for performing periodic data updates in the background.
  */
-class DataUpdateWorker @Inject constructor(appContext: Context, workerParams: WorkerParameters, private val todoItemsRepository: TodoItemsRepository) :
+class DataUpdateWorker(appContext: Context, workerParams: WorkerParameters) :
     Worker(appContext, workerParams) {
+
+    @Inject
+    lateinit var todoItemsRepository: TodoItemsRepository
 
     override fun doWork(): Result {
         try {
@@ -24,6 +28,11 @@ class DataUpdateWorker @Inject constructor(appContext: Context, workerParams: Wo
             Log.e("DataUpdateWorker", "Exception: ${e.message}")
             return Result.failure()
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(appContext: Context, params: WorkerParameters): NotificationWorker
     }
 }
 
