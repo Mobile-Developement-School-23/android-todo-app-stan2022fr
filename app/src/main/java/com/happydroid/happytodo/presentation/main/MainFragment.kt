@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -54,7 +55,8 @@ class MainFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        (requireActivity().application as ToDoApplication).appComponent.mainFragmentComponent().inject(this)
+        (requireActivity().application as ToDoApplication).appComponent.mainFragmentComponent()
+            .inject(this)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -84,13 +86,20 @@ class MainFragment : Fragment() {
     private fun addFloatingAddTaskButton(view: View) {
         val fabAddTask = view.findViewById<FloatingActionButton>(R.id.fabAddTask)
         fabAddTask.setOnClickListener {
-            // запускаем fragment для добавления задачи
             val addTodoFragment = AddTodoFragment()
             val fragmentManager = requireActivity().supportFragmentManager
-            val fragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.replace(R.id.container, addTodoFragment)
-            fragmentTransaction.addToBackStack(null)
-            fragmentTransaction.commit()
+           // val fragmentTransaction = fragmentManager.beginTransaction()
+
+            fragmentManager.commit{
+                setCustomAnimations(
+                    R.anim.slide_in,
+                    R.anim.fade_out,
+                    R.anim.fade_in,
+                    R.anim.slide_out,
+                )
+                replace(R.id.container, addTodoFragment)
+                addToBackStack(null)
+            }
         }
     }
 
@@ -164,6 +173,12 @@ class MainFragment : Fragment() {
                 val fragmentManager = requireActivity().supportFragmentManager
 
                 fragmentManager.beginTransaction()
+                    .setCustomAnimations(
+                        R.anim.slide_in,
+                        R.anim.fade_out,
+                        R.anim.fade_in,
+                        R.anim.slide_out,
+                    )
                     .replace(R.id.container, settingsFragment)
                     .addToBackStack(null)
                     .commit()
@@ -208,6 +223,12 @@ class MainFragment : Fragment() {
         addTodoFragment.arguments = bundle
 
         fragmentManager.beginTransaction().apply {
+            setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.slide_out,
+            )
             replace(R.id.container, addTodoFragment)
             addToBackStack(null)
             commit()
