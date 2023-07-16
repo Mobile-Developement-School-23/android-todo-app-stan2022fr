@@ -1,9 +1,12 @@
 package com.happydroid.happytodo.presentation.additem.compose
 
+import android.content.res.Configuration
 import android.util.Log
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.compose.animation.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +31,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalTextStyle
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
@@ -46,6 +50,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -60,20 +65,30 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.happydroid.happytodo.R
 import com.happydroid.happytodo.presentation.MainActivity
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.util.Date
 
-@Preview(showSystemUi = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Composable
-fun AddTodoScreenPreview() {
+fun AddTodoScreenPreviewLight() {
     AddTodoScreen()
 }
 
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+fun AddTodoScreenPreviewDark() {
+    AddTodoScreen()
+}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AddTodoScreen() {
+    val primaryColor = MaterialTheme.colors.primary
+
+    Log.i("hhh", primaryColor.toString())
+    Log.i("hhh", Color(0xFFF7F6F2).toString())
 
     val textValue = remember { mutableStateOf("") }
     val dateSwitchState = remember { mutableStateOf(false) }
@@ -98,7 +113,7 @@ fun AddTodoScreen() {
         Scaffold(content = { padding ->
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = Color(0xFFF7F6F2)
+                color = MaterialTheme.colors.primary
             ) {
                 Column(
                     modifier = Modifier
@@ -168,7 +183,8 @@ fun CloseButton() {
                 (context as MainActivity).supportFragmentManager.popBackStack()
             },
 
-        contentScale = ContentScale.Fit
+        contentScale = ContentScale.Fit,
+        colorFilter = ColorFilter.tint(MaterialTheme.colors.onPrimary)
     )
 }
 
@@ -207,7 +223,7 @@ fun SaveButton(
 
 
             },
-        color = Color.Blue,
+        color = Color(0xFF007AFF),
         fontSize = 19.sp
     )
 }
@@ -223,7 +239,7 @@ fun EditText(textValue: MutableState<String>) {
             .fillMaxWidth()
             .padding(15.dp)
             .wrapContentHeight()
-            .background(Color.White),
+            .background(MaterialTheme.colors.background),
         textStyle = LocalTextStyle.current.copy(fontSize = 19.sp),
         maxLines = 6,
         minLines = 3,
@@ -237,7 +253,7 @@ fun Separator() {
     Divider(
         modifier = Modifier
             .padding(horizontal = 15.dp, vertical = 20.dp),
-        color = Color.Gray,
+        color = MaterialTheme.colors.onSecondary,
         thickness = 1.dp
     )
 }
@@ -248,7 +264,7 @@ fun PriorityTextView() {
         text = stringResource(id = R.string.text_priority),
         modifier = Modifier
             .padding(start = 20.dp, top = 5.dp),
-        color = Color.Black,
+        color = MaterialTheme.colors.onPrimary,
         fontSize = 19.sp
     )
 }
@@ -295,7 +311,7 @@ fun PriorityTextField(
             )
             .focusable(true),
 
-        color = Color.Blue,
+        color = Color(0xFF007AFF),
         fontSize = 16.sp,
 
         )
@@ -315,9 +331,12 @@ fun BottomSheetContent(
     val textPriorityNone = stringResource(R.string.priority_none)
     val textPriorityHigh = stringResource(R.string.priority_high)
     val textPriorityLow = stringResource(R.string.priority_low)
+
+    val highPriorityColor = remember { Animatable(Color.Transparent) }
+
     Surface(
         modifier = Modifier.height(170.dp),
-        color = Color(0xFFF7F6F2)
+        color = MaterialTheme.colors.primary
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -338,12 +357,12 @@ fun BottomSheetContent(
                     text = textPriorityNone,
                     fontSize = 20.sp,
                     modifier = Modifier.padding(10.dp),
-                    color = Color.Black
+                    color = MaterialTheme.colors.onPrimary
                 )
             }
             Divider(
                 modifier = Modifier.padding(5.dp),
-                color = Color.Black
+                color = MaterialTheme.colors.onSecondary
             )
             Box(
                 modifier = Modifier
@@ -351,21 +370,31 @@ fun BottomSheetContent(
                     .clickable {
                         selectedText.value = textPriorityHigh
                         scope.launch {
+
+                            highPriorityColor.animateTo(Color.Red, animationSpec = tween(300))
+                            delay(200)
+                            highPriorityColor.animateTo(
+                                Color.Transparent,
+                                animationSpec = tween(300)
+                            )
+
                             sheetState.hide()
                         }
-                    },
+                    }
+                    .background(highPriorityColor.value),
+
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = textPriorityHigh,
                     fontSize = 20.sp,
                     modifier = Modifier.padding(10.dp),
-                    color = Color.Black
+                    color = MaterialTheme.colors.onPrimary
                 )
             }
             Divider(
                 modifier = Modifier.padding(5.dp),
-                color = Color.Black
+                color = MaterialTheme.colors.onSecondary
             )
             Box(
                 modifier = Modifier
@@ -382,7 +411,7 @@ fun BottomSheetContent(
                     text = textPriorityLow,
                     fontSize = 20.sp,
                     modifier = Modifier.padding(10.dp),
-                    color = Color.Black
+                    color = MaterialTheme.colors.onPrimary
                 )
             }
         }
@@ -395,7 +424,7 @@ fun DueDateTextView() {
         text = stringResource(id = R.string.due_date),
         modifier = Modifier
             .padding(start = 15.dp, top = 15.dp),
-        color = Color.Black,
+        color = MaterialTheme.colors.onPrimary,
         fontSize = 19.sp
     )
 }
@@ -472,7 +501,7 @@ fun DateTextView(
             }
 
             .focusable(true),
-        color = Color.Blue,
+        color = Color(0xFF007AFF),
         fontSize = 16.sp,
     )
 }
@@ -505,12 +534,12 @@ fun DeleteButton() {
                     .size(22.dp),
                 painter = painterResource(id = R.drawable.ic_delete),
                 contentDescription = null, // Provide a content description if needed
-                tint = Color.Gray
+                tint = MaterialTheme.colors.onSecondary
             )
             Spacer(modifier = Modifier.width(14.dp))
             Text(
                 text = deleteButtonText,
-                color = Color.Gray,
+                color = MaterialTheme.colors.onSecondary,
                 fontSize = 18.sp
             )
         }
