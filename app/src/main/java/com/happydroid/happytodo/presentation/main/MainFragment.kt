@@ -24,6 +24,7 @@ import com.happydroid.happytodo.ToDoApplication
 import com.happydroid.happytodo.data.model.ErrorCode
 import com.happydroid.happytodo.data.model.TodoItem
 import com.happydroid.happytodo.presentation.additem.AddTodoFragment
+import com.happydroid.happytodo.presentation.additem.AddTodoFragmentCompose
 import com.happydroid.happytodo.presentation.main.rv.TodoItemOffsetItemDecoration
 import com.happydroid.happytodo.presentation.main.rv.TodolistAdapter
 import com.happydroid.happytodo.presentation.settings.SettingsFragment
@@ -86,7 +87,7 @@ class MainFragment : Fragment() {
     private fun addFloatingAddTaskButton(view: View) {
         val fabAddTask = view.findViewById<FloatingActionButton>(R.id.fabAddTask)
         fabAddTask.setOnClickListener {
-            val addTodoFragment = AddTodoFragment()
+            val addTodoFragment = AddTodoFragmentCompose()
             val fragmentManager = requireActivity().supportFragmentManager
            // val fragmentTransaction = fragmentManager.beginTransaction()
 
